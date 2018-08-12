@@ -12,7 +12,6 @@
         android:id="@+id/gl_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="@dimen/fab_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

@@ -2,6 +2,7 @@ package org.rafalesoft.com.jeuquentin;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -15,7 +16,7 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity
 {
-    GLRenderer mRenderer = new GLRenderer();
+    GLRenderer mRenderer = new GLRenderer(this);
 
 
     // Used to load the 'native-lib' library on application startup.
@@ -74,13 +75,15 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
+        switch (id)
         {
-            return true;
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
