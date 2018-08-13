@@ -6,6 +6,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 
@@ -28,21 +29,18 @@ class GLRenderer implements GLSurfaceView.Renderer
     {
         String xmlPath = File.separator + filename;
 
-        //File dataDir = new File(_ctx.getDataDir().getPath() + xmlPath);
-        //if (!dataDir.exists())
-        //{
-            File dataDir = new File(_ctx.getExternalFilesDir(null) + xmlPath);
+
+        File dataDir = new File(_ctx.getExternalFilesDir(null) + xmlPath);
+        if (!dataDir.exists())
+        {
+            dataDir = new File(Environment.getDataDirectory() + xmlPath);
             if (!dataDir.exists())
             {
-                dataDir = new File(Environment.getDataDirectory() + xmlPath);
+                dataDir = new File(_ctx.getFilesDir() + xmlPath);
                 if (!dataDir.exists())
-                {
-                    dataDir = new File(_ctx.getFilesDir() + xmlPath);
-                    if (!dataDir.exists())
-                        return "";
-                }
+                    return "";
             }
-        //}
+        }
 
         return dataDir.getPath();
     }
@@ -50,10 +48,14 @@ class GLRenderer implements GLSurfaceView.Renderer
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config)
     {
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
         mTriangle = new Triangle();
-        mSquare = new Square(findFilePath("M81_1024.jpg"));
+        //mSquare = new Square(findFilePath("M81_1024.jpg"));
+
+        Texture txt = new Texture();
+        txt.loadImage(_ctx.getResources(), R.drawable.earth_battle);
+        mSquare = new Square(txt);
     }
 
     @Override
@@ -101,12 +103,12 @@ class GLRenderer implements GLSurfaceView.Renderer
 
         int[] compiled = new int[1];
         GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0);
-        if (compiled[0] == 0) {
+        if (compiled[0] == 0)
+        {
             String info = GLES20.glGetShaderInfoLog(shader);
             GLES20.glDeleteShader(shader);
             shader = 0;
-            throw new RuntimeException("Could not compile shader " +
-                    type + ":" + info);
+            Log.d("Shader", info);
         }
 
         return shader;

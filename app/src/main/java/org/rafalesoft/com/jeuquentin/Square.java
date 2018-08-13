@@ -1,6 +1,7 @@
 package org.rafalesoft.com.jeuquentin;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -17,7 +18,7 @@ class Square
     private int mTexCoordHandle;
     private int mColorHandle;
     private int mDiffuseHandle;
-    private Texture m_texture = new Texture();
+    private Texture m_texture = null;
 
     private final String vertexShaderCode =
             "attribute vec4 vPosition;" +
@@ -40,25 +41,26 @@ class Square
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
     static float squareCoords[] = {
-            -0.5f,  0.5f, 0.0f,   // top left
-            -0.5f, -0.5f, 0.0f,   // bottom left
-            0.5f, -0.5f, 0.0f,   // bottom right
-            0.5f,  0.5f, 0.0f }; // top right
+            -0.5f,  -0.5f, 0.0f,   // top left
+            -0.5f, 0.5f, 0.0f,   // bottom left
+            0.5f, 0.5f, 0.0f,   // bottom right
+            0.5f,  -0.5f, 0.0f }; // top right
     static final int TEXCOORDS_PER_VERTEX = 2;
     static float squareTexCoords[] = {
             0.0f, 1.0f,   // top left
             0.0f, 0.0f,   // bottom left
-            1.0f, 1.0f,   // bottom right
+            1.0f, 0.0f,   // bottom right
             1.0f, 1.0f }; // top right
 
 
     private short drawOrder[] = { 0, 1, 2, 0, 2, 3 }; // order to draw vertices
-    float color[] = { 0.63671875f, 0.76953125f, 0.22265625f, 1.0f };
+    //float color[] = { 0.63671875f, 0.76953125f, 0.22265625f, 1.0f };
+    float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     private final int vertexCount = squareCoords.length / COORDS_PER_VERTEX;
     private final int vertexStride = COORDS_PER_VERTEX * 4;
     private final int texelStride = TEXCOORDS_PER_VERTEX * 4;
 
-    public Square(String textureName)
+    public Square(Texture t)
     {
         // initialize vertex byte buffer for shape coordinates
         ByteBuffer bb = ByteBuffer.allocateDirect(
@@ -74,8 +76,8 @@ class Square
                 // (# of coordinate values * 4 bytes per float)
                 squareTexCoords.length * 4);
         tb.order(ByteOrder.nativeOrder());
-        texelBuffer = bb.asFloatBuffer();
-        texelBuffer.put(squareCoords);
+        texelBuffer = tb.asFloatBuffer();
+        texelBuffer.put(squareTexCoords);
         texelBuffer.position(0);
 
         // initialize byte buffer for the draw list
@@ -101,8 +103,9 @@ class Square
         // creates OpenGL ES program executables
         GLES20.glLinkProgram(mProgram);
         String log = GLES20.glGetProgramInfoLog(mProgram);
+        Log.d("Shader", log);
 
-        m_texture.loadImage(textureName);
+        m_texture = t;
     }
 
     public void draw()
