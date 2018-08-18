@@ -1,16 +1,16 @@
-package org.rafalesoft.com.jeuquentin;
+package org.rafalesoft.com.raptor;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
-class Texture
+
+public class TextureObject
 {
     private int [] textureHandle = new int[1];
 
-    void draw()
+    public void glRender()
     {
         // Set the active texture unit to texture unit 0.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -20,7 +20,7 @@ class Texture
     }
 
 
-    void loadImage(String filename)
+    public void loadImage(String filename)
     {
         GLES20.glGenTextures(1, textureHandle, 0);
 
@@ -45,14 +45,13 @@ class Texture
             // Recycle the bitmap, since its data has been loaded into OpenGL.
             bitmap.recycle();
         }
-
-        if (textureHandle[0] == 0)
+        else
         {
             throw new RuntimeException("Error loading texture.");
         }
     }
 
-    void loadImage(Resources res, int resourceId)
+    public void loadImage(int resourceId)
     {
         GLES20.glGenTextures(1, textureHandle, 0);
 
@@ -62,7 +61,7 @@ class Texture
             options.inScaled = false;   // No pre-scaling
 
             // Read in the resource
-            final Bitmap bitmap = BitmapFactory.decodeResource(res, resourceId, options);
+            final Bitmap bitmap = BitmapFactory.decodeResource(Raptor.getResources(), resourceId, options);
 
             // Bind to the texture in OpenGL
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
@@ -77,8 +76,7 @@ class Texture
             // Recycle the bitmap, since its data has been loaded into OpenGL.
             bitmap.recycle();
         }
-
-        if (textureHandle[0] == 0)
+        else
         {
             throw new RuntimeException("Error loading texture.");
         }

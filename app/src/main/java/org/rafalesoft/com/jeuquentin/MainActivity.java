@@ -3,8 +3,8 @@ package org.rafalesoft.com.jeuquentin;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,10 +13,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.rafalesoft.com.raptor.Raptor;
+
 
 public class MainActivity extends AppCompatActivity
 {
-    GLRenderer mRenderer = new GLRenderer(this);
+    GLRenderer mRenderer = new GLRenderer();
 
 
     // Used to load the 'native-lib' library on application startup.
@@ -31,12 +33,10 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create an OpenGL ES 2.0 context
-        GLSurfaceView glView = findViewById(R.id.gl_view);
-        glView.setEGLContextClientVersion(2);
+        View glView = Raptor.glCreateWindow(this, mRenderer);
+        ConstraintLayout containerView = findViewById(R.id.gl_container);
+        containerView.addView(glView);
 
-        glView.setRenderer(mRenderer);
-        glView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -51,11 +51,7 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
-/*
-        // Example of a call to a native method
-        TextView tv = (TextView) findViewById(R.id.sample_text);
-        tv.setText(stringFromJNI());
-*/
+
         String s = stringFromJNI();
     }
 

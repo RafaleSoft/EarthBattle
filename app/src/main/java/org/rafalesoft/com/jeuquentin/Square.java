@@ -1,24 +1,27 @@
 package org.rafalesoft.com.jeuquentin;
 
 import android.opengl.GLES20;
-import android.util.Log;
+
+import org.rafalesoft.com.raptor.ShadedGeometry;
+import org.rafalesoft.com.raptor.TextureObject;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-class Square
+
+class Square extends ShadedGeometry
 {
-    private FloatBuffer vertexBuffer;
     private FloatBuffer texelBuffer;
     private ShortBuffer drawListBuffer;
-    private int mProgram;
+
     private int mPositionHandle;
     private int mTexCoordHandle;
     private int mColorHandle;
     private int mDiffuseHandle;
-    private Texture m_texture = null;
+    private TextureObject m_texture = null;
+
 
     private final String vertexShaderCode =
             "attribute vec4 vPosition;" +
@@ -60,16 +63,9 @@ class Square
     private final int vertexStride = COORDS_PER_VERTEX * 4;
     private final int texelStride = TEXCOORDS_PER_VERTEX * 4;
 
-    public Square(Texture t)
+    public Square(TextureObject t)
     {
-        // initialize vertex byte buffer for shape coordinates
-        ByteBuffer bb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 4 bytes per float)
-                squareCoords.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(squareCoords);
-        vertexBuffer.position(0);
+        setVertices(squareCoords);
 
         // initialize vertex byte buffer for shape coordinates
         ByteBuffer tb = ByteBuffer.allocateDirect(
@@ -89,33 +85,20 @@ class Square
         drawListBuffer.put(drawOrder);
         drawListBuffer.position(0);
 
-        int vertexShader = GLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = GLRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-        // create empty OpenGL ES Program
-        mProgram = GLES20.glCreateProgram();
-
-        // add the vertex shader to program
-        GLES20.glAttachShader(mProgram, vertexShader);
-        // add the fragment shader to program
-        GLES20.glAttachShader(mProgram, fragmentShader);
-
-        // creates OpenGL ES program executables
-        GLES20.glLinkProgram(mProgram);
-        String log = GLES20.glGetProgramInfoLog(mProgram);
-        Log.d("Shader", log);
-
+        getShader().loadShader(vertexShaderCode, fragmentShaderCode);
         m_texture = t;
     }
 
-    public void draw()
+    @Override
+    public void glRender()
     {
         // Add program to OpenGL ES environment
-        GLES20.glUseProgram(mProgram);
+        GLES20.glUseProgram(getShader().getProgram());
+        m_texture.glRender();
 
         // get handle to vertex shader's vPosition member
-        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
-        mTexCoordHandle = GLES20.glGetAttribLocation(mProgram, "tCoords");
+        mPositionHandle = GLES20.glGetAttribLocation(getShader().getProgram(), "vPosition");
+        mTexCoordHandle = GLES20.glGetAttribLocation(getShader().getProgram(), "tCoords");
 
         // Enable a handle to the square vertices
         GLES20.glEnableVertexAttribArray(mPositionHandle);
@@ -125,25 +108,23 @@ class Square
         // Prepare the square coordinate data
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
-                vertexStride, vertexBuffer);
+                vertexStride, getVertices());
         GLES20.glVertexAttribPointer(mTexCoordHandle, TEXCOORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 texelStride, texelBuffer);
 
         // get handle to fragment shader's vColor member
-        mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
+        mColorHandle = GLES20.glGetUniformLocation(getShader().getProgram(), "vColor");
 
         // Set color for drawing the square
         GLES20.glUniform4fv(mColorHandle, 1, color, 0);
 
-        mDiffuseHandle = GLES20.glGetUniformLocation(mProgram, "diffuseMap");
-        m_texture.draw();
+        mDiffuseHandle = GLES20.glGetUniformLocation(getShader().getProgram(), "diffuseMap");
+
         // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
         GLES20.glUniform1i(mDiffuseHandle, 0);
 
-
         // Draw the square
-        //GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
         GLES20.glDrawElements(GLES20.GL_TRIANGLES,6, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
 
         // Disable vertex array
