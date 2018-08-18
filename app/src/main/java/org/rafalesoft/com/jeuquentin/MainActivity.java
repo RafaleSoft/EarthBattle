@@ -21,12 +21,6 @@ public class MainActivity extends AppCompatActivity
     GLRenderer mRenderer = new GLRenderer();
 
 
-    // Used to load the 'native-lib' library on application startup.
-    static
-    {
-        System.loadLibrary("native-lib");
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -51,8 +45,6 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
-
-        String s = stringFromJNI();
     }
 
     @Override

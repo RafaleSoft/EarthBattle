@@ -15,6 +15,17 @@ public class Raptor
     private Context _context = null;
     private GLContext _gl_context = null;
 
+    static
+    {
+        // Used to load the 'native-lib' library on application startup.
+        System.loadLibrary("native-lib");
+    }
+
+    Raptor()
+    {
+
+    }
+
     public static Raptor getInstance()
     {
         if (_raptor == null)
