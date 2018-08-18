@@ -1,55 +1,20 @@
 package org.rafalesoft.com.jeuquentin;
 
-import android.opengl.GLES10;
-import android.opengl.GLES20;
-import android.opengl.GLSurfaceView;
+import org.rafalesoft.com.raptor.GLContext;
+import org.rafalesoft.com.raptor.TextureObject;
+import org.rafalesoft.com.raptor._3DScene;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 
-class GLRenderer implements GLSurfaceView.Renderer
+
+class GLRenderer extends GLContext
 {
-
-    private Triangle mTriangle;
-
-    @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config)
+    public void glInitContext()
     {
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        mTriangle = new Triangle();
-    }
+        TextureObject txt = new TextureObject();
+        txt.loadImage(R.drawable.earth_battle);
 
-    @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height)
-    {
-        GLES20.glViewport(0, 0, width, height);
-    }
-
-    @Override
-    public void onDrawFrame(GL10 gl)
-    {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-
-        mTriangle.draw();
-
-        /*
-        GLES10.glMatrixMode(GLES10.GL_MODELVIEW);
-        GLES10.glPushMatrix();
-        GLES10.glTranslatef(0.0f,0.0f, -5.0f);
-        GLES10.glPopMatrix();
-        */
-    }
-
-    public static int loadShader(int type, String shaderCode)
-    {
-        // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
-        int shader = GLES20.glCreateShader(type);
-
-        // add the source code to the shader and compile it
-        GLES20.glShaderSource(shader, shaderCode);
-        GLES20.glCompileShader(shader);
-
-        return shader;
+        Square mSquare = new Square(txt);
+        _3DScene scene = getScene();
+        scene.addObject(mSquare);
     }
 }
