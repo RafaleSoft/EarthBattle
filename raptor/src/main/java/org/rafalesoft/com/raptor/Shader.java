@@ -3,19 +3,28 @@ package org.rafalesoft.com.raptor;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 public class Shader
 {
-    private int mProgram = 0;
-    private TextureObject m_texture = null;
+    public int getProgram() { return m_program; }
 
-    public int getProgram() { return mProgram; }
+    public void setTexture(TextureObject txt)
+    {
+        m_texture = txt;
+    }
 
     public void glRender()
     {
-        if (mProgram > 0)
-            GLES20.glUseProgram(mProgram);
+        if (m_program > 0)
+            GLES20.glUseProgram(m_program);
         if (m_texture != null)
             m_texture.glRender();
+    }
+
+    public void setParameters(ArrayList<ProgramParameter.Parameter> params)
+    {
+
     }
 
     public void loadShader(String vertexShaderCode, String fragmentShaderCode)
@@ -24,18 +33,18 @@ public class Shader
         int fragmentShader = Shader.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
         // create empty OpenGL ES Program
-        mProgram = GLES20.glCreateProgram();
+        m_program = GLES20.glCreateProgram();
 
         // add the vertex shader to program
-        GLES20.glAttachShader(mProgram, vertexShader);
+        GLES20.glAttachShader(m_program, vertexShader);
         // add the fragment shader to program
-        GLES20.glAttachShader(mProgram, fragmentShader);
+        GLES20.glAttachShader(m_program, fragmentShader);
 
         // creates OpenGL ES program executables
-        GLES20.glLinkProgram(mProgram);
-        String log = GLES20.glGetProgramInfoLog(mProgram);
+        GLES20.glLinkProgram(m_program);
+        String log = GLES20.glGetProgramInfoLog(m_program);
 
-        if (!log.isEmpty() || mProgram <= 0)
+        if (!log.isEmpty() || m_program <= 0)
             Log.d("Shader", log);
     }
 
@@ -61,4 +70,9 @@ public class Shader
 
         return shader;
     }
+
+    private int m_program = 0;
+    private float m_color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    private TextureObject m_texture = null;
+    private ProgramParameter m_parameters = new ProgramParameter();
 }

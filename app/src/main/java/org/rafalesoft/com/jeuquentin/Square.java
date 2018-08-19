@@ -2,43 +2,36 @@ package org.rafalesoft.com.jeuquentin;
 
 import android.opengl.GLES20;
 
+import org.rafalesoft.com.raptor.GLContext;
 import org.rafalesoft.com.raptor.ShadedGeometry;
 import org.rafalesoft.com.raptor.TextureObject;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 
 class Square extends ShadedGeometry
 {
-    private FloatBuffer texelBuffer;
-    private ShortBuffer drawListBuffer;
-
     private int mPositionHandle;
     private int mTexCoordHandle;
-    private int mColorHandle;
+    //private int mColorHandle;
     private int mDiffuseHandle;
-    private TextureObject m_texture = null;
+    private int mMVPMatrixHandle;
 
 
     private final String vertexShaderCode =
+            "uniform mat4 uMVPMatrix;" +
             "attribute vec4 vPosition;" +
             "attribute vec2 tCoords;" +
             "varying vec2 v_TexCoordinate;" +
                     "void main() {" +
-                    "  gl_Position = vPosition;" +
+                    "  gl_Position = uMVPMatrix * vPosition;" +
                     "  v_TexCoordinate = tCoords;" +
                     "}";
 
     private final String fragmentShaderCode =
-            "precision mediump float;" +
-                    "uniform vec4 vColor;" +
+                    "precision mediump float;" +
                     "uniform sampler2D diffuseMap;" +
                     "varying vec2 v_TexCoordinate;" +
                     "void main() {" +
-                    "gl_FragColor = (vColor * texture2D(diffuseMap, v_TexCoordinate));" +
+                    "gl_FragColor = texture2D(diffuseMap, v_TexCoordinate);" +
                     "}";
 
     // number of coordinates per vertex in this array
@@ -55,50 +48,29 @@ class Square extends ShadedGeometry
             1.0f, 0.0f,   // bottom right
             1.0f, 1.0f }; // top right
 
-
     private short drawOrder[] = { 0, 1, 2, 0, 2, 3 }; // order to draw vertices
-    //float color[] = { 0.63671875f, 0.76953125f, 0.22265625f, 1.0f };
-    float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    private final int vertexCount = squareCoords.length / COORDS_PER_VERTEX;
-    private final int vertexStride = COORDS_PER_VERTEX * 4;
-    private final int texelStride = TEXCOORDS_PER_VERTEX * 4;
+    //float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 
     public Square(TextureObject t)
     {
         setVertices(squareCoords);
-
-        // initialize vertex byte buffer for shape coordinates
-        ByteBuffer tb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 4 bytes per float)
-                squareTexCoords.length * 4);
-        tb.order(ByteOrder.nativeOrder());
-        texelBuffer = tb.asFloatBuffer();
-        texelBuffer.put(squareTexCoords);
-        texelBuffer.position(0);
-
-        // initialize byte buffer for the draw list
-        ByteBuffer dlb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 2 bytes per short)
-                drawOrder.length * 2);
-        dlb.order(ByteOrder.nativeOrder());
-        drawListBuffer = dlb.asShortBuffer();
-        drawListBuffer.put(drawOrder);
-        drawListBuffer.position(0);
+        setTextureCoords(squareTexCoords);
+        setPolygons(drawOrder);
 
         getShader().loadShader(vertexShaderCode, fragmentShaderCode);
-        m_texture = t;
+        getShader().setTexture(t);
     }
 
     @Override
     public void glRender()
     {
-        // Add program to OpenGL ES environment
-        GLES20.glUseProgram(getShader().getProgram());
-        m_texture.glRender();
+        super.glRender();
 
         // get handle to vertex shader's vPosition member
         mPositionHandle = GLES20.glGetAttribLocation(getShader().getProgram(), "vPosition");
         mTexCoordHandle = GLES20.glGetAttribLocation(getShader().getProgram(), "tCoords");
+        mMVPMatrixHandle = GLES20.glGetUniformLocation(getShader().getProgram(), "uMVPMatrix");
 
         // Enable a handle to the square vertices
         GLES20.glEnableVertexAttribArray(mPositionHandle);
@@ -108,16 +80,17 @@ class Square extends ShadedGeometry
         // Prepare the square coordinate data
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
-                vertexStride, getVertices());
+                COORDS_PER_VERTEX * 4, getVertices());
         GLES20.glVertexAttribPointer(mTexCoordHandle, TEXCOORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
-                texelStride, texelBuffer);
+                TEXCOORDS_PER_VERTEX * 4, getTextureCoords());
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, GLContext.getmMVPMatrix(), 0);
+
 
         // get handle to fragment shader's vColor member
-        mColorHandle = GLES20.glGetUniformLocation(getShader().getProgram(), "vColor");
-
+        //mColorHandle = GLES20.glGetUniformLocation(getShader().getProgram(), "vColor");
         // Set color for drawing the square
-        GLES20.glUniform4fv(mColorHandle, 1, color, 0);
+        //GLES20.glUniform4fv(mColorHandle, 1, color, 0);
 
         mDiffuseHandle = GLES20.glGetUniformLocation(getShader().getProgram(), "diffuseMap");
 
@@ -125,7 +98,7 @@ class Square extends ShadedGeometry
         GLES20.glUniform1i(mDiffuseHandle, 0);
 
         // Draw the square
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES,6, GLES20.GL_UNSIGNED_SHORT, drawListBuffer);
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES,6, GLES20.GL_UNSIGNED_SHORT, getPolygons());
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);

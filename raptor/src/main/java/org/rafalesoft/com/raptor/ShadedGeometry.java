@@ -3,10 +3,13 @@ package org.rafalesoft.com.raptor;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
 
 public class ShadedGeometry extends Object3D
 {
-    int nbVertex() { return vertexBuffer.array().length; }
+    int getNbVertex() { return vertexBuffer.array().length; }
+    int getNbTextureCoord() { return textureCoordBuffer.array().length; }
     int nbFace() { return 0; }
     public Shader getShader() { return m_shader; }
 
@@ -17,6 +20,7 @@ public class ShadedGeometry extends Object3D
             m_shader.glRender();
     }
 
+    public FloatBuffer getVertices() { return vertexBuffer; }
     public void setVertices(float[] coords)
     {
         // initialize vertex byte buffer for shape coordinates
@@ -28,36 +32,63 @@ public class ShadedGeometry extends Object3D
         vertexBuffer.position(0);
     }
 
-    public FloatBuffer getVertices() { return vertexBuffer; }
-
-
-    public enum RenderingModel
+    public FloatBuffer getTextureCoords() { return textureCoordBuffer; }
+    public void setTextureCoords(float [] coords)
     {
-        CGL_FRONT_GEOMETRY(1),
-        CGL_BACK_GEOMETRY(2),
-        CGL_NORMALS(4),
-        CGL_TANGENTS(8),
-        CGL_TEXTURE(16),
-        CGL_WEIGHT(32),
-        CGL_COLORS(64),
-        CGL_FOG(128),
-        CGL_FULL_RENDER(255);
+        // initialize vertex byte buffer for shape coordinates
+        // (# of coordinate values * 4 bytes per float)
+        ByteBuffer tb = ByteBuffer.allocateDirect(coords.length * 4);
+        tb.order(ByteOrder.nativeOrder());
+        textureCoordBuffer = tb.asFloatBuffer();
+        textureCoordBuffer.put(coords);
+        textureCoordBuffer.position(0);
+    }
 
-        RenderingModel(long m) { m_renderingModel = m; }
+    public ShortBuffer getPolygons()
+    {
+        return polygons;
+    }
+    public void setPolygons(short [] polys)
+    {
+        // initialize byte buffer for the draw list
+        // (# of coordinate values * 2 bytes per short)
+        ByteBuffer dlb = ByteBuffer.allocateDirect(polys.length * 2);
+        dlb.order(ByteOrder.nativeOrder());
+        polygons = dlb.asShortBuffer();
+        polygons.put(polys);
+        polygons.position(0);
+    }
+
+    public static class RenderingModel
+    {
+        public enum MODEL
+        {
+            CGL_FRONT_GEOMETRY,
+            CGL_BACK_GEOMETRY,
+            CGL_NORMALS,
+            CGL_TANGENTS,
+            CGL_TEXTURE,
+            CGL_WEIGHT,
+            CGL_COLORS,
+            CGL_FOG,
+            CGL_FULL_RENDER
+        }
 
         //! Returns true if the model feature is set
-        //bool RAPTOR_FASTCALL hasModel(MODEL model) const { return ((m_renderingModel & model) == model); };
+        boolean hasModel(MODEL model) { return m_renderingModel.contains(model); }
 
         //!	appends a rendering model feature
-        //void addModel(MODEL);
+        void addModel(MODEL m) { m_renderingModel.add(m); }
 
         //!	removes a rendering model feature
-        //void removeModel(MODEL);
+        void removeModel(MODEL m) { m_renderingModel.remove(m); }
 
-        private long	m_renderingModel;
+        private ArrayList<MODEL> m_renderingModel = new ArrayList<>();
     }
 
 
     private FloatBuffer vertexBuffer = null;
+    private FloatBuffer textureCoordBuffer = null;
+    private ShortBuffer polygons = null;
     private Shader m_shader = new Shader();
 }

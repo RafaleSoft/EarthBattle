@@ -33,6 +33,13 @@ public class Raptor
         return _raptor;
     }
 
+    public static GLContext getContext()
+    {
+        if (_raptor == null)
+            _raptor = new Raptor();
+        return _raptor._gl_context;
+    }
+
     static Resources getResources()
     {
         if (_raptor == null)
