@@ -11,9 +11,12 @@ import java.io.File;
 
 public class Raptor
 {
+    /** Raptor single instance */
     private static Raptor _raptor = null;
+    /** Store owner activity context */
     private Context _context = null;
-    private GLContext _gl_context = null;
+
+    private static RaptorScreenDisplay _currentDisplay = null;
 
     static
     {
@@ -33,11 +36,9 @@ public class Raptor
         return _raptor;
     }
 
-    public static GLContext getContext()
+    public static RaptorScreenDisplay getCurrentDisplay()
     {
-        if (_raptor == null)
-            _raptor = new Raptor();
-        return _raptor._gl_context;
+        return _currentDisplay;
     }
 
     static Resources getResources()
@@ -69,33 +70,17 @@ public class Raptor
         return dataDir.getPath();
     }
 
-    public static View glCreateWindow(Context ctx, GLContext renderer)
+    public static View glCreateWindow(Context ctx, RenderEntryPoint entryPoint)
     {
         if ((ctx != null) && (getInstance()._context == null))
             getInstance()._context = ctx;
 
-        RaptorDisplay display = new RaptorDisplay(ctx);
-        display.setEGLContextClientVersion(2);
-        if (renderer == null)
-            getInstance()._gl_context = glCreateContext();
-        else
-            getInstance()._gl_context = renderer;
-        display.setRenderer(renderer);
-        display.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        RaptorScreenDisplay display = new RaptorScreenDisplay(ctx);
+        display.getRaptorDisplay().setEntryPoint(entryPoint);
+
+        /** TODO: reproduce Raptor display binding  */
+        _currentDisplay = display;
 
         return display;
-    }
-
-    public static GLContext glCreateContext()
-    {
-        GLContext ctx = new GLContext()
-        {
-            @Override
-            public void glInitContext()
-            {
-                GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            }
-        };
-        return ctx;
     }
 }

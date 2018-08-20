@@ -3,6 +3,7 @@ package org.rafalesoft.com.jeuquentin;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -15,11 +16,56 @@ import android.view.View;
 
 import org.rafalesoft.com.raptor.Raptor;
 
+import java.io.IOException;
+
 
 public class MainActivity extends AppCompatActivity
 {
-    GLRenderer mRenderer = new GLRenderer();
+    private final GLRenderer mRenderer = new GLRenderer();
+    private MediaPlayer mMediaPlayer = null;
 
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        mMediaPlayer.stop();
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        mMediaPlayer.release();
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        mMediaPlayer.pause();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        mMediaPlayer.start();
+    }
+
+    @Override
+    protected void onRestart()
+    {
+        super.onRestart();
+        try
+        {
+            mMediaPlayer.prepare();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,6 +91,9 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
+
+        mMediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.track2);
+        mMediaPlayer.start();
     }
 
     @Override
@@ -83,6 +132,7 @@ public class MainActivity extends AppCompatActivity
         {
             public void onClick(DialogInterface dialog, int id)
             {
+                mMediaPlayer.stop();
                 finish();
             }
         });

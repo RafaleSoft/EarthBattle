@@ -2,7 +2,7 @@ package org.rafalesoft.com.jeuquentin;
 
 import android.opengl.GLES20;
 
-import org.rafalesoft.com.raptor.GLContext;
+import org.rafalesoft.com.raptor.RaptorDisplay;
 import org.rafalesoft.com.raptor.ShadedGeometry;
 import org.rafalesoft.com.raptor.TextureObject;
 
@@ -84,7 +84,7 @@ class Square extends ShadedGeometry
         GLES20.glVertexAttribPointer(mTexCoordHandle, TEXCOORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 TEXCOORDS_PER_VERTEX * 4, getTextureCoords());
-        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, GLContext.getmMVPMatrix(), 0);
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, RaptorDisplay.getmMVPMatrix(), 0);
 
 
         // get handle to fragment shader's vColor member
