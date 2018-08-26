@@ -22,6 +22,21 @@ class GLRenderer implements RenderEntryPoint
         Square mSquare = new Square(txt);
         _3DScene scene = Raptor.getCurrentDisplay().getRootScene();
         scene.addObject(mSquare);
+
+        TextureObject txt2 = new TextureObject();
+        txt2.loadImage(R.drawable.marble);
+        Dalle mDalle = new Dalle(txt2);
+        scene.addObject(mDalle);
+
+        //	Create sky dome object
+        TextureObject txt3 = new TextureObject();
+        txt3.loadImage(R.drawable.sky);
+        //CShadedGeometry *sky = new CShadedGeometry();
+        //CGeometry* skydome = (CGeometry*)CPersistence::FindObject("SKYDOME");
+	    //*sky = *skydome;
+        //CShader *sh = sky->getShader();
+        //CTextureUnitSetup* tus = sh->glGetTextureUnitsSetup();
+        //tus->setDiffuseMap(T);
     }
 
     @Override

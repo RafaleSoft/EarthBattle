@@ -7,7 +7,7 @@ import org.rafalesoft.com.raptor.ShadedGeometry;
 import org.rafalesoft.com.raptor.TextureObject;
 
 
-class Square extends ShadedGeometry
+class Dalle extends ShadedGeometry
 {
     private int mPositionHandle;
     private int mTexCoordHandle;
@@ -37,10 +37,10 @@ class Square extends ShadedGeometry
     // number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
     static float squareCoords[] = {
-            -0.5f,  -0.5f, 0.0f,   // top left
-            -0.5f, 0.5f, 0.0f,   // bottom left
-            0.5f, 0.5f, 0.0f,   // bottom right
-            0.5f,  -0.5f, 0.0f }; // top right
+            -0.5f,  -1.0f, -0.5f,   // top left
+            -0.5f, -1.0f, 0.5f,   // bottom left
+            0.5f, -1.0f, 0.5f,   // bottom right
+            0.5f, -1.0f, -0.5f }; // top right
     static final int TEXCOORDS_PER_VERTEX = 2;
     static float squareTexCoords[] = {
             0.0f, 1.0f,   // top left
@@ -51,7 +51,7 @@ class Square extends ShadedGeometry
     private short drawOrder[] = { 0, 1, 2, 0, 2, 3 }; // order to draw vertices
 
 
-    public Square(TextureObject t)
+    public Dalle(TextureObject t)
     {
         setVertices(squareCoords);
         setTextureCoords(squareTexCoords);

@@ -2,8 +2,6 @@ package org.rafalesoft.com.raptor;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.opengl.GLES20;
-import android.opengl.GLSurfaceView;
 import android.os.Environment;
 import android.view.View;
 
