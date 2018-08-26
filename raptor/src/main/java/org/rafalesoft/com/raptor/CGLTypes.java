@@ -159,6 +159,9 @@ public final class CGLTypes
             return this;
         }
 
+        public void zero() { x=0.0f; y=0.0f; z=0.0f; h=1.0f; }
+        public void nil() { x=0.0f; y=0.0f; z=0.0f; h=0.0f; }
+
         public float [] asFloatArray()
         {
             float [] res = new float[]{x, y, z, h};
@@ -246,7 +249,7 @@ public final class CGLTypes
      *	H => homogenous vector
      *	x' = M*x => x' =  ( R*x + x.h*t ) / H*x
      */
-    public static class GL_MATRIX_TAG
+    public static class GL_MATRIX
     {
         public GL_COORD_VERTEX rowx;//	rx.x rx.y rx.z t.x
         public GL_COORD_VERTEX rowy;//	ry.x ry.y ry.z t.y
@@ -261,11 +264,24 @@ public final class CGLTypes
                                         rowh.x, rowh.y, rowh.z, rowh.h };
             return res;
         }
+
+        public void zero()
+        {
+            rowx.nil();
+            rowy.nil();
+            rowz.nil();
+            rowh.zero();
+        }
+
+        public void identity()
+        {
+            zero();
+            rowx.x = rowy.y = rowz.z = 1.0f;
+        }
     }
 
 /*
-#define ZERO_COORD_VERTEX(v) { v.x=0.0f;v.y=0.0f;v.z=0.0f;v.h=1.0f; }
-#define NULL_COORD_VERTEX(v) { v.x=0.0f;v.y=0.0f;v.z=0.0f;v.h=0.0f; }
+
 #define NULL_TEX_VERTEX(t) { t.u=0.0f;t.v=0.0f; }
 
 #define NULL_VERTEX(v) \

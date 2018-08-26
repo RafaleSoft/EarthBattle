@@ -158,7 +158,7 @@ public class ViewPoint
 //////////////////////////////////////////////////////////////////////
 // Transforms
 //////////////////////////////////////////////////////////////////////
-    public void translate(float tx,float ty,float tz)
+    public void Object3DInstance(float tx,float ty,float tz)
     {
         CGenericVector<float>	z_axis = Origin - Target;
         z_axis.Normalize();
@@ -182,19 +182,19 @@ public class ViewPoint
         Target += delta;
     }
 
-    public void scale(float sx,float sy,float sz)
+    public void Object3DInstance(float sx,float sy,float sz)
     {
         Scale.X() *= sx;
         Scale.Y() *= sy;
         Scale.Z() *= sz;
     }
 
-    public void rotationZ(float rz)
+    public void Object3DInstance(float rz)
     {
         m_lfGamma += rz;
     }
 
-    public void rotationX(float rx)
+    public void Object3DInstance(float rx)
     {
         m_lfBeta -= rx;
         if (m_lfBeta > 360.0)
@@ -214,7 +214,7 @@ public class ViewPoint
         Target = v + Origin;
     }
 
-    public void rotationY(float ry)
+    public void Object3DInstance(float ry)
     {
         m_lfAlpha -= ry;
         if (m_lfAlpha > 360.0)
@@ -248,7 +248,7 @@ public class ViewPoint
     }
 
 
-    public void glRender()
+    public void Object3DInstance()
     {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();

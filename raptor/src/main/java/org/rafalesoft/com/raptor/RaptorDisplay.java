@@ -96,7 +96,7 @@ public class RaptorDisplay implements GLSurfaceView.Renderer
         Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0.0f, 1.0f, 0.0f);
 
         float[] scratch = new float[16];
-        // Combine the rotation matrix with the projection and camera view
+        // Combine the Object3DInstance matrix with the projection and camera view
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
