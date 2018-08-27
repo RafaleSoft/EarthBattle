@@ -90,5 +90,5 @@ public class ShadedGeometry extends Object3D
     private FloatBuffer vertexBuffer = null;
     private FloatBuffer textureCoordBuffer = null;
     private ShortBuffer polygons = null;
-    private Shader m_shader = new Shader();
+    private Shader m_shader = new Shader("SHADED_GEOMETRY_SHADER");
 }

@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        mMediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.track2);
+        mMediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.track4);
         mMediaPlayer.start();
     }
 

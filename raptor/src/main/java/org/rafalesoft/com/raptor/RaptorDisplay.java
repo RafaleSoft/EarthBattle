@@ -14,6 +14,7 @@ public class RaptorDisplay implements GLSurfaceView.Renderer
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
     private final _3DScene mScene = new _3DScene();
+    private final ViewPoint mViewPoint = new ViewPoint();
     private RenderEntryPoint mEntryPoint = new DefaultEntryPoint();
 
     private class DefaultEntryPoint implements RenderEntryPoint
@@ -92,10 +93,10 @@ public class RaptorDisplay implements GLSurfaceView.Renderer
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
         float[] mRotationMatrix = new float[16];
-        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, -1.0f);
+        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0.0f, 1.0f, 0.0f);
 
         float[] scratch = new float[16];
-        // Combine the rotation matrix with the projection and camera view
+        // Combine the Object3DInstance matrix with the projection and camera view
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);

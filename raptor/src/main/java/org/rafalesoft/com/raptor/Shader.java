@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class Shader
 {
+    public Shader(String name) { m_name = name; }
+
     public int getProgram() { return m_program; }
 
     public void setTexture(TextureObject txt)
@@ -71,6 +73,7 @@ public class Shader
         return shader;
     }
 
+    private String m_name;
     private int m_program = 0;
     private float m_color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     private TextureObject m_texture = null;

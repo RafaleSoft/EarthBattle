@@ -40,12 +40,12 @@ public class RaptorScreenDisplay extends GLSurfaceView
                 float dx = x - mPreviousX;
                 float dy = y - mPreviousY;
 
-                // reverse direction of rotation above the mid-line
+                // reverse direction of Object3DInstance above the mid-line
                 if (y > getHeight() / 2) {
                     dx = dx * -1 ;
                 }
 
-                // reverse direction of rotation to left of the mid-line
+                // reverse direction of Object3DInstance to left of the mid-line
                 if (x < getWidth() / 2) {
                     dy = dy * -1 ;
                 }
