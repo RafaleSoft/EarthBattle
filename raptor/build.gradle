@@ -8,9 +8,12 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
         externalNativeBuild {
             cmake {
-                cppFlags "-DSIMD_NO_ASSEMBLY"
+                cppFlags "-DSIMD_NO_ASSEMBLY -D_ANDROID"
             }
         }
     }

@@ -39,7 +39,7 @@
     #else
         #define RAPTOR_TYPENAME
     #endif
-#else
+#else // Linux environment 
 	#include <stdlib.h>
 	#define RAPTOR_API
     #define RAPTOR_FASTCALL
@@ -96,6 +96,13 @@ RAPTOR_NAMESPACE_END
 #define DEFAULT_LINKAGE 
 #define STATIC_LINKAGE        static 
 #define EXTERN_LINKAGE      extern 
+
+
+// define types for compatibility with Android OpenGLES 
+#if defined(_ANDROID) 
+#define GLdouble double 
+#endif
+
 
 //
 //	OpenGL extensions
@@ -155,83 +162,364 @@ RAPTOR_NAMESPACE_END
 #ifndef GL_VERSION_4_4
 	#define	GL_VERSION_4_4		1
 #endif
+#ifndef GL_VERSION_4_5
+	#define	GL_VERSION_4_5		1
+#endif
+#ifndef GL_VERSION_4_6
+	#define	GL_VERSION_4_6		1
+#endif
 #ifndef VK_VERSION_1_0
 	#define	VK_VERSION_1_0		1
 #endif
 
-#define GL_ARB_multitexture				1
-#define GL_ARB_texture_mirrored_repeat				1
-#define GL_ARB_transpose_matrix				1
-#define GL_ARB_texture_cube_map				1
-#define GL_ARB_vertex_buffer_object				1
-#define GL_ARB_fragment_program				1
-#define GL_ARB_occlusion_query				1
-#define GL_ARB_point_sprite				1
-#define GL_ARB_point_parameters				1
-#define GL_ARB_depth_texture				1
-#define GL_ARB_vertex_program				1
-#define GL_ARB_texture_non_power_of_two				1
-#define GL_ARB_texture_float				1
-#define GL_ARB_texture_border_clamp				1
-#define GL_ARB_shader_objects				1
-#define GL_ARB_half_float_pixel				1
-#define GL_ARB_window_pos				1
-#define GL_ARB_vertex_array_object				1
-#define GL_ARB_texture_compression				1
-#define GL_ARB_texture_mirror_clamp_to_edge				1
-#define GL_ARB_texture_env_combine				1
-#define GL_ARB_shadow				1
-#define GL_ARB_pixel_buffer_object				1
-#define GL_ARB_texture_rectangle				1
-#define GL_ARB_vertex_shader				1
-#define GL_ARB_fragment_shader				1
-#define GL_ARB_texture_compression_rgtc				1
-#define GL_ARB_texture_rg				1
-#define GL_ARB_fragment_coord_conventions				1
-#define GL_ARB_geometry_shader4				1
-#define GL_ARB_compressed_texture_pixel_storage				1
-#define GL_ARB_draw_buffers				1
-#define GL_ARB_color_buffer_float				1
-#define GL_ARB_multisample				1
-#define GL_ARB_texture_env_dot3				1
-#define GL_ARB_fragment_program_shadow				1
-#define GL_ARB_texture_compression_bptc				1
-#define GL_ARB_uniform_buffer_object				1
-#define GL_ARB_shading_language_100				1
-#define VK_KHR_surface				1
-#define VK_KHR_swapchain				1
-#define VK_KHR_win32_surface				1
-#define VK_EXT_debug_report				1
-#define VK_KHR_sampler_mirror_clamp_to_edge				1
-#define GL_3DFX_texture_compression_FXT1				1
-#define GL_EXT_abgr				1
-#define GL_EXT_bgra				1
-#define GL_EXT_clip_volume_hint				1
-#define GL_EXT_compiled_vertex_array				1
-#define GL_EXT_packed_pixels				1
-#define GL_EXT_stencil_wrap				1
-#define GL_EXT_stencil_two_side				1
-#define GL_EXT_texture_env_add				1
-#define GL_EXT_secondary_color				1
-#define GL_EXT_separate_specular_color				1
-#define GL_EXT_texture_filter_anisotropic				1
-#define GL_EXT_fog_coord				1
-#define GL_EXT_texture3D				1
-#define GL_EXT_texture_edge_clamp				1
-#define GL_EXT_blend_color				1
-#define GL_EXT_texture_compression_s3tc				1
-#define GL_EXT_framebuffer_object				1
-#define GL_EXT_framebuffer_blit				1
-#define GL_EXT_framebuffer_multisample				1
-#define GL_EXT_packed_depth_stencil				1
-#define GL_NV_texgen_reflection				1
-#define GL_WIN_swap_hint				1
-#define WGL_ARB_extensions_string				1
-#define WGL_EXT_swap_control				1
-#define WGL_ARB_pixel_format				1
-#define WGL_ARB_pbuffer				1
-#define GL_KHR_texture_compression_astc_hdr				1
-#define GL_KHR_texture_compression_astc_ldr				1
+#ifndef GL_ARB_multitexture
+	#define GL_ARB_multitexture				1
+	#define	GL_ARB_MULTITEXTURE_EXTENSION_NAME "GL_ARB_multitexture"
+#endif
+#ifndef GL_ARB_texture_mirrored_repeat
+	#define GL_ARB_texture_mirrored_repeat				1
+	#define	GL_ARB_TEXTURE_MIRRORED_REPEAT_EXTENSION_NAME "GL_ARB_texture_mirrored_repeat"
+#endif
+#ifndef GL_ARB_transpose_matrix
+	#define GL_ARB_transpose_matrix				1
+	#define	GL_ARB_TRANSPOSE_MATRIX_EXTENSION_NAME "GL_ARB_transpose_matrix"
+#endif
+#ifndef GL_ARB_imaging
+	#define GL_ARB_imaging				1
+	#define	GL_ARB_IMAGING_EXTENSION_NAME "GL_ARB_imaging"
+#endif
+#ifndef GL_ARB_texture_cube_map
+	#define GL_ARB_texture_cube_map				1
+	#define	GL_ARB_TEXTURE_CUBE_MAP_EXTENSION_NAME "GL_ARB_texture_cube_map"
+#endif
+#ifndef GL_ARB_vertex_buffer_object
+	#define GL_ARB_vertex_buffer_object				1
+	#define	GL_ARB_VERTEX_BUFFER_OBJECT_EXTENSION_NAME "GL_ARB_vertex_buffer_object"
+#endif
+#ifndef GL_ARB_fragment_program
+	#define GL_ARB_fragment_program				1
+	#define	GL_ARB_FRAGMENT_PROGRAM_EXTENSION_NAME "GL_ARB_fragment_program"
+#endif
+#ifndef GL_ARB_occlusion_query
+	#define GL_ARB_occlusion_query				1
+	#define	GL_ARB_OCCLUSION_QUERY_EXTENSION_NAME "GL_ARB_occlusion_query"
+#endif
+#ifndef GL_ARB_point_sprite
+	#define GL_ARB_point_sprite				1
+	#define	GL_ARB_POINT_SPRITE_EXTENSION_NAME "GL_ARB_point_sprite"
+#endif
+#ifndef GL_ARB_point_parameters
+	#define GL_ARB_point_parameters				1
+	#define	GL_ARB_POINT_PARAMETERS_EXTENSION_NAME "GL_ARB_point_parameters"
+#endif
+#ifndef GL_ARB_depth_texture
+	#define GL_ARB_depth_texture				1
+	#define	GL_ARB_DEPTH_TEXTURE_EXTENSION_NAME "GL_ARB_depth_texture"
+#endif
+#ifndef GL_ARB_vertex_program
+	#define GL_ARB_vertex_program				1
+	#define	GL_ARB_VERTEX_PROGRAM_EXTENSION_NAME "GL_ARB_vertex_program"
+#endif
+#ifndef GL_ARB_texture_non_power_of_two
+	#define GL_ARB_texture_non_power_of_two				1
+	#define	GL_ARB_TEXTURE_NON_POWER_OF_TWO_EXTENSION_NAME "GL_ARB_texture_non_power_of_two"
+#endif
+#ifndef GL_ARB_texture_float
+	#define GL_ARB_texture_float				1
+	#define	GL_ARB_TEXTURE_FLOAT_EXTENSION_NAME "GL_ARB_texture_float"
+#endif
+#ifndef GL_ARB_texture_border_clamp
+	#define GL_ARB_texture_border_clamp				1
+	#define	GL_ARB_TEXTURE_BORDER_CLAMP_EXTENSION_NAME "GL_ARB_texture_border_clamp"
+#endif
+#ifndef GL_ARB_shader_objects
+	#define GL_ARB_shader_objects				1
+	#define	GL_ARB_SHADER_OBJECTS_EXTENSION_NAME "GL_ARB_shader_objects"
+#endif
+#ifndef GL_ARB_half_float_pixel
+	#define GL_ARB_half_float_pixel				1
+	#define	GL_ARB_HALF_FLOAT_PIXEL_EXTENSION_NAME "GL_ARB_half_float_pixel"
+#endif
+#ifndef GL_ARB_window_pos
+	#define GL_ARB_window_pos				1
+	#define	GL_ARB_WINDOW_POS_EXTENSION_NAME "GL_ARB_window_pos"
+#endif
+#ifndef GL_ARB_vertex_array_object
+	#define GL_ARB_vertex_array_object				1
+	#define	GL_ARB_VERTEX_ARRAY_OBJECT_EXTENSION_NAME "GL_ARB_vertex_array_object"
+#endif
+#ifndef GL_ARB_texture_compression
+	#define GL_ARB_texture_compression				1
+	#define	GL_ARB_TEXTURE_COMPRESSION_EXTENSION_NAME "GL_ARB_texture_compression"
+#endif
+#ifndef GL_ARB_texture_mirror_clamp_to_edge
+	#define GL_ARB_texture_mirror_clamp_to_edge				1
+	#define	GL_ARB_TEXTURE_MIRROR_CLAMP_TO_EDGE_EXTENSION_NAME "GL_ARB_texture_mirror_clamp_to_edge"
+#endif
+#ifndef GL_ARB_texture_env_combine
+	#define GL_ARB_texture_env_combine				1
+	#define	GL_ARB_TEXTURE_ENV_COMBINE_EXTENSION_NAME "GL_ARB_texture_env_combine"
+#endif
+#ifndef GL_ARB_shadow
+	#define GL_ARB_shadow				1
+	#define	GL_ARB_SHADOW_EXTENSION_NAME "GL_ARB_shadow"
+#endif
+#ifndef GL_ARB_pixel_buffer_object
+	#define GL_ARB_pixel_buffer_object				1
+	#define	GL_ARB_PIXEL_BUFFER_OBJECT_EXTENSION_NAME "GL_ARB_pixel_buffer_object"
+#endif
+#ifndef GL_ARB_texture_rectangle
+	#define GL_ARB_texture_rectangle				1
+	#define	GL_ARB_TEXTURE_RECTANGLE_EXTENSION_NAME "GL_ARB_texture_rectangle"
+#endif
+#ifndef GL_ARB_vertex_shader
+	#define GL_ARB_vertex_shader				1
+	#define	GL_ARB_VERTEX_SHADER_EXTENSION_NAME "GL_ARB_vertex_shader"
+#endif
+#ifndef GL_ARB_fragment_shader
+	#define GL_ARB_fragment_shader				1
+	#define	GL_ARB_FRAGMENT_SHADER_EXTENSION_NAME "GL_ARB_fragment_shader"
+#endif
+#ifndef GL_ARB_texture_compression_rgtc
+	#define GL_ARB_texture_compression_rgtc				1
+	#define	GL_ARB_TEXTURE_COMPRESSION_RGTC_EXTENSION_NAME "GL_ARB_texture_compression_rgtc"
+#endif
+#ifndef GL_ARB_texture_rg
+	#define GL_ARB_texture_rg				1
+	#define	GL_ARB_TEXTURE_RG_EXTENSION_NAME "GL_ARB_texture_rg"
+#endif
+#ifndef GL_ARB_fragment_coord_conventions
+	#define GL_ARB_fragment_coord_conventions				1
+	#define	GL_ARB_FRAGMENT_COORD_CONVENTIONS_EXTENSION_NAME "GL_ARB_fragment_coord_conventions"
+#endif
+#ifndef GL_ARB_geometry_shader4
+	#define GL_ARB_geometry_shader4				1
+	#define	GL_ARB_GEOMETRY_SHADER4_EXTENSION_NAME "GL_ARB_geometry_shader4"
+#endif
+#ifndef GL_ARB_compressed_texture_pixel_storage
+	#define GL_ARB_compressed_texture_pixel_storage				1
+	#define	GL_ARB_COMPRESSED_TEXTURE_PIXEL_STORAGE_EXTENSION_NAME "GL_ARB_compressed_texture_pixel_storage"
+#endif
+#ifndef GL_ARB_draw_buffers
+	#define GL_ARB_draw_buffers				1
+	#define	GL_ARB_DRAW_BUFFERS_EXTENSION_NAME "GL_ARB_draw_buffers"
+#endif
+#ifndef GL_ARB_color_buffer_float
+	#define GL_ARB_color_buffer_float				1
+	#define	GL_ARB_COLOR_BUFFER_FLOAT_EXTENSION_NAME "GL_ARB_color_buffer_float"
+#endif
+#ifndef GL_ARB_multisample
+	#define GL_ARB_multisample				1
+	#define	GL_ARB_MULTISAMPLE_EXTENSION_NAME "GL_ARB_multisample"
+#endif
+#ifndef GL_ARB_texture_env_dot3
+	#define GL_ARB_texture_env_dot3				1
+	#define	GL_ARB_TEXTURE_ENV_DOT3_EXTENSION_NAME "GL_ARB_texture_env_dot3"
+#endif
+#ifndef GL_ARB_fragment_program_shadow
+	#define GL_ARB_fragment_program_shadow				1
+	#define	GL_ARB_FRAGMENT_PROGRAM_SHADOW_EXTENSION_NAME "GL_ARB_fragment_program_shadow"
+#endif
+#ifndef GL_ARB_texture_compression_bptc
+	#define GL_ARB_texture_compression_bptc				1
+	#define	GL_ARB_TEXTURE_COMPRESSION_BPTC_EXTENSION_NAME "GL_ARB_texture_compression_bptc"
+#endif
+#ifndef GL_ARB_uniform_buffer_object
+	#define GL_ARB_uniform_buffer_object				1
+	#define	GL_ARB_UNIFORM_BUFFER_OBJECT_EXTENSION_NAME "GL_ARB_uniform_buffer_object"
+#endif
+#ifndef GL_ARB_shading_language_100
+	#define GL_ARB_shading_language_100				1
+	#define	GL_ARB_SHADING_LANGUAGE_100_EXTENSION_NAME "GL_ARB_shading_language_100"
+#endif
+#ifndef VK_KHR_surface
+	#define VK_KHR_surface				1
+	#define	VK_KHR_SURFACE_EXTENSION_NAME "VK_KHR_surface"
+#endif
+#ifndef VK_KHR_swapchain
+	#define VK_KHR_swapchain				1
+	#define	VK_KHR_SWAPCHAIN_EXTENSION_NAME "VK_KHR_swapchain"
+#endif
+#ifndef VK_KHR_win32_surface
+	#define VK_KHR_win32_surface				1
+	#define	VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
+#endif
+#ifndef VK_EXT_debug_report
+	#define VK_EXT_debug_report				1
+	#define	VK_EXT_DEBUG_REPORT_EXTENSION_NAME "VK_EXT_debug_report"
+#endif
+#ifndef VK_KHR_sampler_mirror_clamp_to_edge
+	#define VK_KHR_sampler_mirror_clamp_to_edge				1
+	#define	VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_EXTENSION_NAME "VK_KHR_sampler_mirror_clamp_to_edge"
+#endif
+#ifndef GL_EXT_abgr
+	#define GL_EXT_abgr				1
+	#define	GL_EXT_ABGR_EXTENSION_NAME "GL_EXT_abgr"
+#endif
+#ifndef GL_EXT_bgra
+	#define GL_EXT_bgra				1
+	#define	GL_EXT_BGRA_EXTENSION_NAME "GL_EXT_bgra"
+#endif
+#ifndef GL_EXT_compiled_vertex_array
+	#define GL_EXT_compiled_vertex_array				1
+	#define	GL_EXT_COMPILED_VERTEX_ARRAY_EXTENSION_NAME "GL_EXT_compiled_vertex_array"
+#endif
+#ifndef GL_EXT_packed_pixels
+	#define GL_EXT_packed_pixels				1
+	#define	GL_EXT_PACKED_PIXELS_EXTENSION_NAME "GL_EXT_packed_pixels"
+#endif
+#ifndef GL_EXT_point_parameters
+	#define GL_EXT_point_parameters				1
+	#define	GL_EXT_POINT_PARAMETERS_EXTENSION_NAME "GL_EXT_point_parameters"
+#endif
+#ifndef GL_EXT_stencil_wrap
+	#define GL_EXT_stencil_wrap				1
+	#define	GL_EXT_STENCIL_WRAP_EXTENSION_NAME "GL_EXT_stencil_wrap"
+#endif
+#ifndef GL_EXT_stencil_two_side
+	#define GL_EXT_stencil_two_side				1
+	#define	GL_EXT_STENCIL_TWO_SIDE_EXTENSION_NAME "GL_EXT_stencil_two_side"
+#endif
+#ifndef GL_EXT_texture_env_add
+	#define GL_EXT_texture_env_add				1
+	#define	GL_EXT_TEXTURE_ENV_ADD_EXTENSION_NAME "GL_EXT_texture_env_add"
+#endif
+#ifndef GL_EXT_secondary_color
+	#define GL_EXT_secondary_color				1
+	#define	GL_EXT_SECONDARY_COLOR_EXTENSION_NAME "GL_EXT_secondary_color"
+#endif
+#ifndef GL_EXT_separate_specular_color
+	#define GL_EXT_separate_specular_color				1
+	#define	GL_EXT_SEPARATE_SPECULAR_COLOR_EXTENSION_NAME "GL_EXT_separate_specular_color"
+#endif
+#ifndef GL_EXT_texture_filter_anisotropic
+	#define GL_EXT_texture_filter_anisotropic				1
+	#define	GL_EXT_TEXTURE_FILTER_ANISOTROPIC_EXTENSION_NAME "GL_EXT_texture_filter_anisotropic"
+#endif
+#ifndef GL_EXT_fog_coord
+	#define GL_EXT_fog_coord				1
+	#define	GL_EXT_FOG_COORD_EXTENSION_NAME "GL_EXT_fog_coord"
+#endif
+#ifndef GL_EXT_texture3D
+	#define GL_EXT_texture3D				1
+	#define	GL_EXT_TEXTURE3D_EXTENSION_NAME "GL_EXT_texture3D"
+#endif
+#ifndef GL_EXT_texture_edge_clamp
+	#define GL_EXT_texture_edge_clamp				1
+	#define	GL_EXT_TEXTURE_EDGE_CLAMP_EXTENSION_NAME "GL_EXT_texture_edge_clamp"
+#endif
+#ifndef GL_EXT_blend_color
+	#define GL_EXT_blend_color				1
+	#define	GL_EXT_BLEND_COLOR_EXTENSION_NAME "GL_EXT_blend_color"
+#endif
+#ifndef GL_EXT_texture_compression_latc
+	#define GL_EXT_texture_compression_latc				1
+	#define	GL_EXT_TEXTURE_COMPRESSION_LATC_EXTENSION_NAME "GL_EXT_texture_compression_latc"
+#endif
+#ifndef GL_EXT_texture_compression_s3tc
+	#define GL_EXT_texture_compression_s3tc				1
+	#define	GL_EXT_TEXTURE_COMPRESSION_S3TC_EXTENSION_NAME "GL_EXT_texture_compression_s3tc"
+#endif
+#ifndef GL_EXT_texture_compression_dxt1
+	#define GL_EXT_texture_compression_dxt1				1
+	#define	GL_EXT_TEXTURE_COMPRESSION_DXT1_EXTENSION_NAME "GL_EXT_texture_compression_dxt1"
+#endif
+#ifndef GL_EXT_framebuffer_object
+	#define GL_EXT_framebuffer_object				1
+	#define	GL_EXT_FRAMEBUFFER_OBJECT_EXTENSION_NAME "GL_EXT_framebuffer_object"
+#endif
+#ifndef GL_EXT_framebuffer_blit
+	#define GL_EXT_framebuffer_blit				1
+	#define	GL_EXT_FRAMEBUFFER_BLIT_EXTENSION_NAME "GL_EXT_framebuffer_blit"
+#endif
+#ifndef GL_EXT_framebuffer_multisample
+	#define GL_EXT_framebuffer_multisample				1
+	#define	GL_EXT_FRAMEBUFFER_MULTISAMPLE_EXTENSION_NAME "GL_EXT_framebuffer_multisample"
+#endif
+#ifndef GL_EXT_packed_depth_stencil
+	#define GL_EXT_packed_depth_stencil				1
+	#define	GL_EXT_PACKED_DEPTH_STENCIL_EXTENSION_NAME "GL_EXT_packed_depth_stencil"
+#endif
+#ifndef GL_NV_texgen_reflection
+	#define GL_NV_texgen_reflection				1
+	#define	GL_NV_TEXGEN_REFLECTION_EXTENSION_NAME "GL_NV_texgen_reflection"
+#endif
+#ifndef GL_NV_texture_rectangle
+	#define GL_NV_texture_rectangle				1
+	#define	GL_NV_TEXTURE_RECTANGLE_EXTENSION_NAME "GL_NV_texture_rectangle"
+#endif
+#ifndef GL_NV_vertex_array_range
+	#define GL_NV_vertex_array_range				1
+	#define	GL_NV_VERTEX_ARRAY_RANGE_EXTENSION_NAME "GL_NV_vertex_array_range"
+#endif
+#ifndef GL_NV_point_sprite
+	#define GL_NV_point_sprite				1
+	#define	GL_NV_POINT_SPRITE_EXTENSION_NAME "GL_NV_point_sprite"
+#endif
+#ifndef GL_NV_register_combiners
+	#define GL_NV_register_combiners				1
+	#define	GL_NV_REGISTER_COMBINERS_EXTENSION_NAME "GL_NV_register_combiners"
+#endif
+#ifndef GL_NV_texture_env_combine4
+	#define GL_NV_texture_env_combine4				1
+	#define	GL_NV_TEXTURE_ENV_COMBINE4_EXTENSION_NAME "GL_NV_texture_env_combine4"
+#endif
+#ifndef GL_NV_fragment_program
+	#define GL_NV_fragment_program				1
+	#define	GL_NV_FRAGMENT_PROGRAM_EXTENSION_NAME "GL_NV_fragment_program"
+#endif
+#ifndef GL_NV_texture_shader
+	#define GL_NV_texture_shader				1
+	#define	GL_NV_TEXTURE_SHADER_EXTENSION_NAME "GL_NV_texture_shader"
+#endif
+#ifndef GL_NV_texture_compression_vtc
+	#define GL_NV_texture_compression_vtc				1
+	#define	GL_NV_TEXTURE_COMPRESSION_VTC_EXTENSION_NAME "GL_NV_texture_compression_vtc"
+#endif
+#ifndef GL_NV_float_buffer
+	#define GL_NV_float_buffer				1
+	#define	GL_NV_FLOAT_BUFFER_EXTENSION_NAME "GL_NV_float_buffer"
+#endif
+#ifndef GL_WIN_swap_hint
+	#define GL_WIN_swap_hint				1
+	#define	GL_WIN_SWAP_HINT_EXTENSION_NAME "GL_WIN_swap_hint"
+#endif
+#ifndef WGL_ARB_extensions_string
+	#define WGL_ARB_extensions_string				1
+	#define	WGL_ARB_EXTENSIONS_STRING_EXTENSION_NAME "WGL_ARB_extensions_string"
+#endif
+#ifndef WGL_NV_render_texture_rectangle
+	#define WGL_NV_render_texture_rectangle				1
+	#define	WGL_NV_RENDER_TEXTURE_RECTANGLE_EXTENSION_NAME "WGL_NV_render_texture_rectangle"
+#endif
+#ifndef WGL_EXT_swap_control
+	#define WGL_EXT_swap_control				1
+	#define	WGL_EXT_SWAP_CONTROL_EXTENSION_NAME "WGL_EXT_swap_control"
+#endif
+#ifndef WGL_ARB_pixel_format
+	#define WGL_ARB_pixel_format				1
+	#define	WGL_ARB_PIXEL_FORMAT_EXTENSION_NAME "WGL_ARB_pixel_format"
+#endif
+#ifndef WGL_NV_render_depth_texture
+	#define WGL_NV_render_depth_texture				1
+	#define	WGL_NV_RENDER_DEPTH_TEXTURE_EXTENSION_NAME "WGL_NV_render_depth_texture"
+#endif
+#ifndef WGL_EXT_swap_control_tear
+	#define WGL_EXT_swap_control_tear				1
+	#define	WGL_EXT_SWAP_CONTROL_TEAR_EXTENSION_NAME "WGL_EXT_swap_control_tear"
+#endif
+#ifndef WGL_ARB_pbuffer
+	#define WGL_ARB_pbuffer				1
+	#define	WGL_ARB_PBUFFER_EXTENSION_NAME "WGL_ARB_pbuffer"
+#endif
+#ifndef WGL_ARB_render_texture
+	#define WGL_ARB_render_texture				1
+	#define	WGL_ARB_RENDER_TEXTURE_EXTENSION_NAME "WGL_ARB_render_texture"
+#endif
+#ifndef WGL_ATI_pixel_format_float
+	#define WGL_ATI_pixel_format_float				1
+	#define	WGL_ATI_PIXEL_FORMAT_FLOAT_EXTENSION_NAME "WGL_ATI_pixel_format_float"
+#endif
 
 
 //	CPU code generation
@@ -245,7 +533,6 @@ RAPTOR_NAMESPACE_END
 #define RAPTOR_SSE42_CODE_GENERATION				1
 #define RAPTOR_AES_CODE_GENERATION				1
 #define RAPTOR_AVX_CODE_GENERATION				1
-#define RAPTOR_FMA_CODE_GENERATION				1
 
 
 #endif
