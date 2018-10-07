@@ -18,11 +18,16 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
              src/main/cpp/native-lib.cpp
+	         src/main/cpp/Engine/3DEngine.cpp
+	         src/main/cpp/Engine/BoundingBox.cpp
 	         src/main/cpp/Hershey/Simplex.cpp
+	         src/main/cpp/GLHierarchy/Geometry.cpp
 	         src/main/cpp/GLHierarchy/Persistence.cpp
 	         src/main/cpp/GLHierarchy/ObjectProperties.cpp
 	         src/main/cpp/GLHierarchy/Object3D.cpp
-	         src/main/cpp/System/CGLTypes.cpp )
+	         src/main/cpp/Loaders/3DSfile.cpp
+	         src/main/cpp/System/CGLTypes.cpp
+	         src/main/cpp/System/Global.cpp )
 
 include_directories( src/main/cpp )
 

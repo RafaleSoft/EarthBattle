@@ -348,6 +348,7 @@ void CObject3D::extendBoundingBox(const GL_COORD_VERTEX& min, const GL_COORD_VER
 #else
 	void CObject3D::glRenderBBox(bool filled)
 	{
+        /*
 		float xmin,xmax,ymin,ymax,zmin,zmax;
 		BBox->get(xmin,ymin,zmin,xmax,ymax,zmax);
 		double value = xmin + xmax + ymin + ymax + zmax + zmin;
@@ -437,6 +438,7 @@ void CObject3D::extendBoundingBox(const GL_COORD_VERTEX& min, const GL_COORD_VER
 		Global::GetInstance().getCurrentStatus().iRenderedTriangles += 12;
 
 		CATCH_GL_ERROR
+         */
 	}
 #endif
 
