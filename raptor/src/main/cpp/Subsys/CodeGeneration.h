@@ -39,6 +39,7 @@
     #else
         #define RAPTOR_TYPENAME
     #endif
+	#define RAPTOR_INTERFACE __interface
 #else // Linux environment 
 	#include <stdlib.h>
 	#define RAPTOR_API
@@ -46,6 +47,7 @@
     #define RAPTOR_CCALL
     #define RAPTOR_APICALL
     #define RAPTOR_TYPENAME typename
+	#define RAPTOR_INTERFACE class
 #endif
 
 #if defined(_WIN32) 
@@ -94,13 +96,13 @@ RAPTOR_NAMESPACE_END
 
 // define linkage specifier for declarators 
 #define DEFAULT_LINKAGE 
-#define STATIC_LINKAGE        static 
-#define EXTERN_LINKAGE      extern 
+#define STATIC_LINKAGE		static 
+#define EXTERN_LINKAGE		extern 
 
 
 // define types for compatibility with Android OpenGLES 
 #if defined(_ANDROID) 
-#define GLdouble double 
+	#define GLdouble double
 #endif
 
 
@@ -525,7 +527,7 @@ RAPTOR_NAMESPACE_END
 //	CPU code generation
 
 #define RAPTOR_SMP_CODE_GENERATION				1
-//#define RAPTOR_SSE_CODE_GENERATION				1
+#define RAPTOR_SSE_CODE_GENERATION				1
 #define RAPTOR_SSE2_CODE_GENERATION				1
 #define RAPTOR_SSE3_CODE_GENERATION				1
 #define RAPTOR_SSSE3_CODE_GENERATION				1
