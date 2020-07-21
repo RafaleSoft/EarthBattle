@@ -34,7 +34,7 @@ class CRaptorIO;
 	virtual bool importObject(CRaptorIO& i);
 
 #define DECLARE_CLASS_ID(classID,className,parentClass)\
-	DECLARE_API_CLASS_ID(RAPTOR_API,classID,className,parentClass)\
+	DECLARE_API_CLASS_ID(RAPTOR_API,classID,className,parentClass)
 	
 
 #define DECLARE_API_CLASS_ID(API,classID,className,parentClass)\
@@ -46,7 +46,14 @@ class CRaptorIO;
 		virtual bool isSubClassOf(const CPersistence::CPersistenceClassID& id) const\
 		{ return ((id.ID() == ID()) || parentClass::parentClass##ClassID::GetClassId().isSubClassOf(id)); };\
 		static const CPersistenceClassID& GetClassId(void);\
-	};\
+	};
+
+#define IMPLEMENT_CLASS_ID(className, factory) \
+	static className::className##ClassID factory; \
+	static CPersistentType<className> classFactory(factory); \
+	const CPersistence::CPersistenceClassID& className::className##ClassID::GetClassId(void) \
+	{ return factory; }
+
 
 
 //!		This class is not intended to work standalone
@@ -94,7 +101,7 @@ public:
 
 	//!	Returns the number of Raptor persistant objects 
 	//!	currently in memory.
-	static int NbInstance();
+	static size_t NbInstance();
 
 	//!	Returns a Raptor persistent object given it's position (map index).
 	//!	DONT DELETE any of these objects manually.
@@ -154,11 +161,11 @@ private:
 	CPersistence();
 
 	//! Persistence atributes.
-	string				m_name;
+	std::string				m_name;
 	const CPersistenceClassID	&m_ID;
 	
 	//!	The list of registered objects listening destruction of this persistence.
-	vector<CPersistence*>	m_pObservers;
+	std::vector<CPersistence*>	m_pObservers;
 
 	//!	This operator must not be available
 	//! because persistence data MUST be unique

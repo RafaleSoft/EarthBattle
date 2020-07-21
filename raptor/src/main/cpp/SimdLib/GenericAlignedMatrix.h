@@ -1,30 +1,36 @@
+/***************************************************************************/
+/*                                                                         */
+/*  GenericAlignedMatrix.h                                                 */
+/*                                                                         */
+/*    Raptor OpenGL & Vulkan realtime 3D Engine SDK.                       */
+/*                                                                         */
+/*  Copyright 1998-2019 by                                                 */
+/*  Fabrice FERRAND.                                                       */
+/*                                                                         */
+/*  This file is part of the Raptor project, and may only be used,         */
+/*  modified, and distributed under the terms of the Raptor project        */
+/*  license, LICENSE.  By continuing to use, modify, or distribute         */
+/*  this file you indicate that you have read the license and              */
+/*  understand and accept it fully.                                        */
+/*                                                                         */
+/***************************************************************************/
+
+
 #ifndef __GENERIC_ALIGNED_MATRIX_H__
 #define __GENERIC_ALIGNED_MATRIX_H__
 
 #include <iostream>
 #include <math.h>
+#include <stdint.h>
 
 #ifndef __SIMDMACROS_H__
     #include "simdMacros.h"
 #endif
 
+
+
 template <class T> class CGenericAlignedVector;
 class CSSEFMatrix;
-
-	//		16 bytes more space is allocated,
-	//		to store alignment and to store align offset
-	//	char *pT = new char[16*sizeof(##T)+16];
-	//		align data
-	//	vector = (##T*)((int(pT)+0x00000010) & 0xfffffff0);
-	//		store offset
-	//	*((char*)vector-1)=char(int(pT)&0xf);
-
-#define ALLOC_MATRIX(T) \
-{\
-char *pT = new char[16*sizeof(T)+16]; \
-m_matrix = (T*)((long(pT)+0x00000010) & 0xfffffff0);\
-*((char*)m_matrix-1)=char(long(pT)&0xf);\
-}
 
 template<class T>
 class CGenericAlignedMatrix
@@ -34,19 +40,19 @@ protected:
 	
 public:
 	// construction/destruction
-	CGenericAlignedMatrix();
+	CGenericAlignedMatrix() NOEXCEPT;
 	virtual ~CGenericAlignedMatrix();
-	virtual void Zero()
+	virtual void Zero() NOEXCEPT
 	{
 		for (int i=0;i<16;i++)
 			m_matrix[i]=0;
 	};
-	virtual void One()
+	virtual void One() NOEXCEPT
 	{
 		for (int i=0;i<16;i++)
 			m_matrix[i]=1;
 	};
-	virtual void Ident()
+	virtual void Ident() NOEXCEPT
 	{
 		for (int i=0;i<16;i++)
 			m_matrix[i]=0;
@@ -143,9 +149,25 @@ public:
 
 //	Matrix is aligned to a 16 bytes boundery
 template <class T>
-CGenericAlignedMatrix<T>::CGenericAlignedMatrix()
+CGenericAlignedMatrix<T>::CGenericAlignedMatrix() NOEXCEPT
 {
-	ALLOC_MATRIX(T)
+	//		16 bytes more space is allocated,
+	//		to store alignment and to store align offset
+	//	char *pT = new char[16*sizeof(##T)+16];
+	//		align data
+	//	vector = (##T*)((int(pT)+0x00000010) & 0xfffffff0);
+	//		store offset
+	//	*((char*)vector-1)=char(int(pT)&0xf);
+
+	char *pT = new char[16 * sizeof(T) + 16];
+
+#if defined(_WIN64)
+	m_matrix = (T*)((uint64_t(pT) + 0x0000000000000010) & 0xfffffffffffffff0);
+	*((char*)m_matrix - 1) = char(uint64_t(pT) & 0xf);
+#elif defined(WIN32) || defined(LINUX)
+	m_matrix = (T*)((long(pT) + 0x00000010) & 0xfffffff0);
+	*((char*)m_matrix - 1) = char(long(pT) & 0xf);
+#endif
 }
 
 template <class T>
@@ -226,9 +248,9 @@ __inline CGenericAlignedMatrix<T> SIMD_CALL CGenericAlignedMatrix<T>::operator* 
 		for (int i=0;i<16;i+=4)
 		{
 			m.m_matrix[j+i] =	m_matrix[i] * t0 +
-							              m_matrix[i+1] * t1 +
-							              m_matrix[i+2] * t2 +
-							              m_matrix[i+3] * t3;
+							    m_matrix[i+1] * t1 +
+							    m_matrix[i+2] * t2 +
+							    m_matrix[i+3] * t3;
 		}
 	}
 	return m;
@@ -279,5 +301,5 @@ __inline CGenericAlignedVector<T> SIMD_CALL CGenericAlignedMatrix<T>::operator* 
 	return v;
 }
 
-#endif
+#endif	// __GENERIC_ALIGNED_MATRIX_H__
 

@@ -1,10 +1,25 @@
+/***************************************************************************/
+/*                                                                         */
+/*  Raptordll.h                                                            */
+/*                                                                         */
+/*    Raptor OpenGL & Vulkan realtime 3D Engine SDK.                       */
+/*                                                                         */
+/*  Copyright 1998-2019 by                                                 */
+/*  Fabrice FERRAND.                                                       */
+/*                                                                         */
+/*  This file is part of the Raptor project, and may only be used,         */
+/*  modified, and distributed under the terms of the Raptor project        */
+/*  license, LICENSE.  By continuing to use, modify, or distribute         */
+/*  this file you indicate that you have read the license and              */
+/*  understand and accept it fully.                                        */
+/*                                                                         */
+/***************************************************************************/
+
+
 #ifndef __RAPTOR_HPP__
 #define __RAPTOR_HPP__
 
-/////////////////////////////////////////////////////
-//	Raptor configuration
-//
-//	This header is VERY IMPORTANT.
+//	This header is MANDATORY.
 //	It must not be undefined because a generated version
 //	of any application using Raptor will not run properly
 //	if the compiler options are not the same.
@@ -35,20 +50,21 @@ class CParticleManager;
 class CPhysics;
 class CTimeObject;
 class CViewModifier;
-class CViewPoint;
+class IViewPoint;
 
 // GLHierarchy section
 class C3DSet;
 class C3DSqueleton;
 class CBumppedGeometry;
 class CEMBMGeometry;
-class CFragmentProgram;
 class CFragmentShader;
+class CFragmentProgram;
 class CGLFont;
 class CGLLayer;
 class CGLLod;
 class CGeometry;
 class CGeometryPrimitive;
+class CGeometryShader;
 class CLight;
 class CLightGlow;
 class CLightObserver;
@@ -65,18 +81,17 @@ class CParticle;
 class CPerlinNoise;
 class CPersistence;
 class CProjector;
-class CRenderingProperties;
+class IRenderingProperties;
 class CShadedGeometry;
 class CShader;
 class CShaderProgram;
 class CSimpleObject;
 class CTextureFactory;
 class CTextureFactoryConfig;
-class CTextureObject;
 class CTextureSet;
 class CTextureUnitSetup;
-class CVertexProgram;
 class CVertexShader;
+class CVertexProgram;
 class ITextureObject;
 
 // SSE Engine section

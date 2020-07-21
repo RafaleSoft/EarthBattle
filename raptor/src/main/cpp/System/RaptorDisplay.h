@@ -31,7 +31,7 @@ RAPTOR_NAMESPACE_BEGIN
 
 class IViewPoint;
 class C3DScene;
-class CRenderingProperties;
+class IRenderingProperties;
 
 
 
@@ -42,7 +42,11 @@ public:
 	static CRaptorDisplay * const GetCurrentDisplay(void);
 
 	//! Returns the global rendering properties.
-	virtual CRenderingProperties *getRenderingProperties(void) const { return m_pProperties; };
+	virtual IRenderingProperties &getRenderingProperties(void) const;
+
+	//! Creates a view point compatible with this display.
+	virtual IRenderingProperties *const createRenderingProperties(void) const;
+
 
 	//!
 	//!	Display management
@@ -65,11 +69,6 @@ public:
 	//! unbounded before call or if there is an error.
 	virtual bool glvkUnBindDisplay(void);
 
-
-	//!
-	//!	Display management
-	//!
-
 	//!	Current user ( eye ) viewpoint used to render the current root scene of the display. 
     //! The viewpoint has priority over any user OpenGL transforms in rendering: the initial MODELVIEW
 	//!	transform is updated according to the point of view before glRender is called
@@ -79,16 +78,25 @@ public:
 	//! Returns the display view point.
 	virtual IViewPoint *const getViewPoint(void) const;
 
-	//! Returns the display view point.
+	//! Creates a view point compatible with this display.
 	virtual IViewPoint *const createViewPoint(void) const;
 
+	//!	Allocates Geometry, Textures and Uniforms resources for this display.
+	virtual void glvkAllocateResources(void);
 
+	//!	Release allocated Geometry, Textures and Uniforms resources for this display.
+	virtual void glvkReleaseResources(void);
+
+
+	//!
+	//!	Display usage
+	//!
 
 	//! Resize the display to handle user interface events.
 	//! - sx,sy : define the width and height of the display
 	//! - ox,oy : define an offset of the origin of the display within it's container
-	virtual void glResize(	unsigned int sx,unsigned int sy,
-							unsigned int ox, unsigned int oy) = 0;
+	virtual void glResize(uint32_t sx, uint32_t sy,
+						  uint32_t ox, uint32_t oy) = 0;
 
 	//!	Returns the root scene of the display
 	C3DScene *const getRootScene(void) const { return m_pRootScene; };
@@ -117,7 +125,7 @@ public:
 
 	//! Applies a status like one returned here above,
 	//! except the basic config which can only be set at creation.
-	bool glApplyStatus(const CRaptorDisplayConfig &state,unsigned long query);
+	bool glApplyStatus(CRaptorDisplayConfig &state,unsigned long query);
 
 	//!	Return the number of frames rendered during the last second.
 	virtual float getFPS(void) const { return 0.0f; };
@@ -141,28 +149,24 @@ public:
     //! - format    ( if supported )
     //! - returns false if format is not supported or if an error occured.
     //! Actual data is returned in data parameter, and data size is returned in size
-    virtual bool glGrab(unsigned int x, unsigned int y, unsigned int width, unsigned int height,
-						unsigned char* &data,unsigned int& size) const = 0;
+	virtual bool glGrab(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
+						uint8_t* &data,size_t& size) const = 0;
 
 	//!	Blits a bloc of pixels from this display.
 	//!	Pixels are transferred to pDst.
-	virtual bool glBlit(unsigned int xSrc, unsigned int ySrc, unsigned int widthSrc, unsigned int heightSrc,
-						unsigned int xDst, unsigned int yDst, unsigned int widthDst, unsigned int heightDst,
+	virtual bool glBlit(uint32_t xSrc, uint32_t ySrc, uint32_t widthSrc, uint32_t heightSrc,
+						uint32_t xDst, uint32_t yDst, uint32_t widthDst, uint32_t heightDst,
 						CRaptorDisplay *pDst) const = 0;
 
     //! Implements CTextureGenerator.
     //! This generator is not yet implemented.in this version
     virtual ITextureGenerator::GENERATOR_KIND getKind(void) const { return ITextureGenerator::NONE; };
 
-    //! Implements CTextureGenerator
-    //! This class is virtual, generation is only implemented in subclasses
-    //virtual void glGenerate(CTextureObject* );
-
     //! This method returns the width of the generator
-    virtual unsigned int getGenerateWidth(void) const;
+	virtual uint32_t getGenerateWidth(void) const;
 
     //! This method returns the height of the generator
-    virtual unsigned int getGenerateHeight(void) const;
+	virtual uint32_t getGenerateHeight(void) const;
 
 
 
@@ -180,10 +184,10 @@ protected:
     //! Implements CPersistence
     virtual void unLink(const CPersistence* obj);
 
-    //! This method is for internal use only. Raptor call it to
-    //! free all possible ressources while the display is still usable, 
-    //! and before the purge is effective.
-    virtual void glReleaseResources(void);
+	//! This method enables subclasses to replace rendering properties
+	//!	Registration is not implemented, it remains the responsibility of subclasses
+	//! (method is protected)
+	void setRenderingProperties(IRenderingProperties *properties);
 
 	
 private:
@@ -199,7 +203,7 @@ private:
 	bool					m_bDeleteViewPoint;
     bool                    m_bApplyViewPointModel;
 
-	CRenderingProperties    *m_pProperties;
+	IRenderingProperties    *m_pProperties;
 
     C3DScene				*m_pRootScene;
 	vector<C3DScene*>       m_pScenes;

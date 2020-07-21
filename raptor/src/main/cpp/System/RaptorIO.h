@@ -38,6 +38,7 @@ public:
     {
         ASCII_TEXT,
         ASCII_XML,
+		BINARY
     } IO_FORMAT;
 
     typedef enum
@@ -58,7 +59,12 @@ public:
     IO_STATUS	getStatus(void) const { return m_status; };
 
 	//! Returns the size of this IO if available (not a stream)
-	unsigned int	getSize(void) const;
+	size_t	getSize(void) const;
+
+	//!	Defines the flush logic: autoflushed when internal buffers are
+	//! full, or systematic flush at each file write.
+	//! @param flush: if true, flush is automatic, else it is at each write.
+	void setAutoFlush(bool flush) { m_bAutoflush = flush; }
 
     //!  Extensible io management
 	virtual std::string getValueName(void) const;
@@ -113,12 +119,13 @@ protected:
 	CRaptorIO(const std::string& streamName, CRaptorIO::IO_KIND kind);
 
     IO_STATUS		m_status;
-	unsigned int	m_size;
+	std::streampos	m_size;
 	std::ofstream	m_outFile;
 	std::ifstream	m_inFile;
 
 private:
 	IO_KIND		m_kind;
+	bool		m_bAutoflush;
 };
 
 RAPTOR_NAMESPACE_END

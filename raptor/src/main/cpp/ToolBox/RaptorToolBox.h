@@ -57,7 +57,7 @@ public:
 	//
 	// The final <result> object is raw : it is ready to be bound in
 	// a CTexture object using LoadTexture(<result>,".buffer")
-    static CTextureObject *mergeTextures(	CTextureSet *t,
+    static ITextureObject *mergeTextures(	CTextureSet *t,
 											unsigned int width, unsigned int height,
 											vector<GL_COORD_VERTEX> &placements);
 
@@ -96,6 +96,9 @@ public:
 	//
 	//	Exports an object to a Wavefront .OBJ file
 	static bool saveWavefrontScene(const std::string &fname,C3DSet *scene);
+	//
+	//	Load an XML data set and import it in named display and scene.
+	static bool loadRaptorData(const std::string &fname, LP_SCENE_LOADER_OPTIONS options = NULL);
 
 
 private:

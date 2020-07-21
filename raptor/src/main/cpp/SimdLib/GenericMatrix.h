@@ -1,8 +1,29 @@
+/***************************************************************************/
+/*                                                                         */
+/*  GenericMatrix.h                                                        */
+/*                                                                         */
+/*    Raptor OpenGL & Vulkan realtime 3D Engine SDK.                       */
+/*                                                                         */
+/*  Copyright 1998-2019 by                                                 */
+/*  Fabrice FERRAND.                                                       */
+/*                                                                         */
+/*  This file is part of the Raptor project, and may only be used,         */
+/*  modified, and distributed under the terms of the Raptor project        */
+/*  license, LICENSE.  By continuing to use, modify, or distribute         */
+/*  this file you indicate that you have read the license and              */
+/*  understand and accept it fully.                                        */
+/*                                                                         */
+/***************************************************************************/
+
+
 #ifndef __GENERIC_MATRIX_H__
 #define __GENERIC_MATRIX_H__
 
 #include <iostream>
 #include <math.h>
+#ifdef LINUX
+	#include <string.h>
+#endif
 
 #ifndef __SIMDMACROS_H__
     #include "simdMacros.h"
@@ -17,11 +38,11 @@ class CGenericMatrix
 {
 public:
 	// construction/destruction
-	CGenericMatrix();
+	CGenericMatrix() NOEXCEPT;
 	virtual ~CGenericMatrix();
-	virtual void Zero();
-	virtual void One();
-	virtual void Ident();
+	virtual void Zero() NOEXCEPT;
+	virtual void One() NOEXCEPT;
+	virtual void Ident() NOEXCEPT;
 	
 	// data access
 	T* const matrix(void) const { return (T*)(m_matrix); };
@@ -64,5 +85,5 @@ protected:
 };
 
 
-#endif
+#endif	//__GENERIC_MATRIX_H__
 

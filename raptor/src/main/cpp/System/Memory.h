@@ -1,6 +1,20 @@
-// Memory.h: interface for the CHostMemoryManager class and IDeviceMemoryManager interface
-//
-//////////////////////////////////////////////////////////////////////
+/***************************************************************************/
+/*                                                                         */
+/*  Memory.h                                                               */
+/*                                                                         */
+/*    Raptor OpenGL & Vulkan realtime 3D Engine SDK.                       */
+/*                                                                         */
+/*  Copyright 1998-2019 by                                                 */
+/*  Fabrice FERRAND.                                                       */
+/*                                                                         */
+/*  This file is part of the Raptor project, and may only be used,         */
+/*  modified, and distributed under the terms of the Raptor project        */
+/*  license, LICENSE.  By continuing to use, modify, or distribute         */
+/*  this file you indicate that you have read the license and              */
+/*  understand and accept it fully.                                        */
+/*                                                                         */
+/***************************************************************************/
+
 
 #if !defined(AFX_MEMORY_H__81A6CA9A_4ED9_4260_B6E4_C03276C38DBC__INCLUDED_)
 #define AFX_MEMORY_H__81A6CA9A_4ED9_4260_B6E4_C03276C38DBC__INCLUDED_
@@ -10,6 +24,10 @@
 #endif // _MSC_VER > 1000
 
 #include "Subsys/CodeGeneration.h"
+
+#if !defined(AFX_PERSISTENCE_H__5561BA28_831B_11D3_9142_EEB51CEBBDB0__INCLUDED_)
+	#include "GLHierarchy/Persistence.h"
+#endif
 
 
 RAPTOR_NAMESPACE_BEGIN
@@ -72,10 +90,8 @@ public:
 
 	//! This method creates a new buffer object :
     //! @param kind : selects a kind of buffer ( vertex, pixel, memory ... )
+	//!	@param mode : selects the buffer acces dynamics to data,
     //! @param size : sets the size of the buffer and allocates uninitialized memory
-	//! @param size2 : sets the 2nd dimension size of the buffer
-	//! @param size3 : sets the 3nd dimension size of the buffer
-	//!	@param 
     //! @return the newly allocated buffer object or NULL if allocation failed.
 	virtual IDeviceMemoryManager::IBufferObject *
 			createBufferObject(	IDeviceMemoryManager::IBufferObject::BUFFER_KIND kind, 
@@ -84,7 +100,7 @@ public:
 
 	//! Activates the buffer object : bo is now the currently selected buffer for
     //! all subsequent calls related to the kind of buffer
-	virtual bool lockBufferObject(IBufferObject &bo) = 0;
+	virtual bool lockBufferObject(IDeviceMemoryManager::IBufferObject &bo) = 0;
 
 	//! Deactivates the buffer object selected above.
 	virtual bool unlockBufferObject(IDeviceMemoryManager::IBufferObject &bo) = 0;
@@ -100,6 +116,20 @@ public:
 	virtual bool setBufferObjectData(	IDeviceMemoryManager::IBufferObject &bo,
 										uint64_t dstOffset,
 										const void* src,
+										uint64_t sz) = 0;
+
+	//!	Memory data copy from src resource buffer object to dst. Buffers must be 
+	//!	allocated and have equivalent size and buffers must have the same storage kind.
+	//! @param dstbo: the destination buffer object .
+	//! @param dstOffset : the offset in the destination buffer.
+	//! @param srcbo: the source buffer object.
+	//! @param srcOffset: the offset in the source buffer.
+	//!	@param sz : the size to copy in machine units.
+	//! @return true if copy successful, false in case of error.
+	virtual bool copyBufferObjectData(	IDeviceMemoryManager::IBufferObject &dstbo,
+										uint64_t dstOffset,
+										IDeviceMemoryManager::IBufferObject &srcbo,
+										uint64_t srcOffset,
 										uint64_t sz) = 0;
 
 	//!	Memory transfer method that should be used when copying data to and from a buffer object.
@@ -133,6 +163,9 @@ public:
 	virtual bool releaseBufferObject(	IDeviceMemoryManager::IBufferObject* &bo) = 0;
 
 
+	//!	Implements CPersistence
+	DECLARE_CLASS_ID(IDeviceMemoryManagerClassID, "DeviceMemoryManager", CPersistence)
+
 
 protected:
 	IDeviceMemoryManager() {};
@@ -162,7 +195,7 @@ public:
         Allocator() {};
         virtual ~Allocator() {};
 
-        T* allocate(unsigned int count);
+        T* allocate(size_t count);
     };
 
 
@@ -190,7 +223,7 @@ public:
 
 	//!	Allocation method with aligned data
 	//! allocate count chuncks of size bytes, aligned with alignment
-	void *allocate(size_t size,unsigned int count,size_t alignment = 0) const;
+	void *allocate(size_t size, size_t count,size_t alignment = 0) const;
 
 	//!	Reallocation method with aligned data
 	//! allocate count chuncks of size bytes, aligned with alignment, preserving old content.
@@ -208,7 +241,7 @@ public:
 
 	//!	Garbage maximum allowed size
 	//!	( @see CRaptorConfig for initial value )
-	void setGarbageMaxSize(unsigned int maxSize) const;
+	void setGarbageMaxSize(size_t maxSize) const;
 
 	//!	Configure fered memory packing (garbage + release)
 	void setDeferedPacking(bool defered) const;
@@ -229,7 +262,7 @@ private:
 
 
 template <class T,int a>
-T* CHostMemoryManager::Allocator<T,a>::allocate(unsigned int count)
+T* CHostMemoryManager::Allocator<T,a>::allocate(size_t count)
 {
     void* bloc = CHostMemoryManager::GetInstance()->allocate(sizeof(T),count,a);
     return new(bloc) T;

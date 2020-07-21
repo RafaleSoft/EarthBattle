@@ -1,6 +1,22 @@
-// VulkanDevice.cpp: implementation of the CVulkanDisplay class.
-//
-//////////////////////////////////////////////////////////////////////
+/***************************************************************************/
+/*                                                                         */
+/*  VulkanDevice.cpp                                                       */
+/*                                                                         */
+/*    Raptor OpenGL & Vulkan realtime 3D Engine SDK.                       */
+/*                                                                         */
+/*  Copyright 1998-2019 by                                                 */
+/*  Fabrice FERRAND.                                                       */
+/*                                                                         */
+/*  This file is part of the Raptor project, and may only be used,         */
+/*  modified, and distributed under the terms of the Raptor project        */
+/*  license, LICENSE.  By continuing to use, modify, or distribute         */
+/*  this file you indicate that you have read the license and              */
+/*  understand and accept it fully.                                        */
+/*                                                                         */
+/***************************************************************************/
+
+
+
 #include "Subsys/CodeGeneration.h"
 
 #if !defined(AFX_RAPTORVULKANDEVICE_H__2FDEDD40_444E_4CC2_96AA_CBF9E79C3ABE__INCLUDED_)
@@ -27,9 +43,6 @@
 #if !defined(AFX_VULKANTEXTUREOBJECT_H__5E3E26C2_441F_4051_986F_2207AF0B3F6D__INCLUDED_)
 	#include "Subsys/Vulkan/VulkanTextureObject.h"
 #endif
-#if !defined(AFX_RAPTORVULKANMEMORY_H__72256FF7_DBB9_4B9C_9BF7_C36F425CF811__INCLUDED_)
-	#include "Subsys/Vulkan/VulkanMemory.h"
-#endif
 #if !defined(AFX_RAPTORVULKANCOMMANDBUFFER_H__0398BABD_747B_4DFE_94AA_B026BDBD03B1__INCLUDED_)
 	#include "Subsys/Vulkan/VulkanCommandBuffer.h"
 #endif
@@ -39,12 +52,13 @@
 #if !defined(AFX_CONTEXTMANAGER_H__F992F5F0_D8A5_475F_9777_B0EB30E7648E__INCLUDED_)
 	#include "Subsys/ContextManager.h"
 #endif
-#ifndef __GLOBAL_H__
-	#include "System/Global.h"
-#endif
 #if !defined(AFX_3DSCENE_H__E597E752_BAD4_415D_9C00_8C59D139D32B__INCLUDED_)
 	#include "Engine/3DScene.h"
 #endif
+#if !defined(AFX_VULKAN_H__625F6BC5_F386_44C2_85C1_EDBA23B16921__INCLUDED_)
+	#include "Subsys/Vulkan/RaptorVulkan.h"
+#endif
+
 
 RAPTOR_NAMESPACE
 
@@ -159,10 +173,8 @@ bool CVulkanDevice::acquireSwapChainImage(uint64_t timeout)
 	//!	Future improvement will manage several images per frame.
 	if (currentImage != MAXUINT)
 	{
-		CRaptorErrorManager *pErrMgr = Raptor::GetErrorManager();
-		pErrMgr->generateRaptorError(	Global::CVulkanClassID::GetClassId(),
-										CRaptorErrorManager::RAPTOR_WARNING,
-										"Vulkan Device aready has a rendering image available!");
+		RAPTOR_WARNING(	CVulkan::CVulkanClassID::GetClassId(),
+						"Vulkan Device aready has a rendering image available!");
 		return true;
 	}
 
@@ -253,7 +265,7 @@ bool CVulkanDevice::vkUploadDataToDevice(bool blocking) const
 								0, NULL };
 	VkResult res = vkQueueSubmit(transferQueue, 1, &submit_info, NULL );
 	CATCH_VK_ERROR(res);
-	
+
 	if (blocking)
 	{
 		res = vkQueueWaitIdle(transferQueue);
@@ -307,9 +319,7 @@ bool CVulkanDevice::vkRender(	C3DScene *pScene,
 						   config.framebufferState.depthClearValue,
 						   config.framebufferState.stencilClearValue);
 	
-	VkBuffer binding = pDeviceMemory->getLockedBuffer(IDeviceMemoryManager::IBufferObject::VERTEX_BUFFER);
-	VkBuffer binding2 = pDeviceMemory->getLockedBuffer(IDeviceMemoryManager::IBufferObject::INDEX_BUFFER);
-	pScene->vkRender(displayList, binding, binding2);
+	pScene->vkRender(displayList);
 
 	return true;
 }
@@ -687,7 +697,7 @@ bool CVulkanDevice::vkCreateSwapChain(CVulkanSurface *pSurface,
 
 	if (!vkCreateRenderingResources())
 	{
-		RAPTOR_VKERROR(Global::CVulkanClassID::GetClassId(),
+		RAPTOR_VKERROR(CVulkan::CVulkanClassID::GetClassId(),
 					   "Vulkan Device cannot create rendering ressources !");
 		return false;
 	}
@@ -702,7 +712,7 @@ bool CVulkanDevice::vkCreateSwapChain(CVulkanSurface *pSurface,
 										config.height,
 										depth_format))
 	{
-		RAPTOR_VKERROR(Global::CVulkanClassID::GetClassId(),
+		RAPTOR_VKERROR(CVulkan::CVulkanClassID::GetClassId(),
 					   "Vulkan Device cannot create render pass ressources !");
 		return false;
 	}
@@ -725,7 +735,7 @@ bool CVulkanDevice::vkCreateLogicalDevice(	const VkPhysicalDevice &physicalDevic
 #if defined RAPTOR_DEBUG_MODE_GENERATION
 	if (graphicsQueueCount < NB_RENDERING_RESOURCES)
 	{
-		RAPTOR_VKERROR(	Global::CVulkanClassID::GetClassId(),
+		RAPTOR_VKERROR(	CVulkan::CVulkanClassID::GetClassId(),
 						"Vulkan Device has not enough graphics queues !");
 	}
 #endif
@@ -812,14 +822,14 @@ bool CVulkanDevice::vkCreateLogicalDevice(	const VkPhysicalDevice &physicalDevic
 
 
 	PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr = CRaptorVKExtensions::vkGetDeviceProcAddr;
-	IMPLEMENT_VK_device(this->, device);
-	IMPLEMENT_VK_KHR_swapchain(this->, device);
+	IMPLEMENT_VK_device(this, device);
+	IMPLEMENT_VK_KHR_swapchain(this, device);
 	if (VK_NULL_HANDLE == CVulkanCommandBuffer::vkBeginCommandBuffer)
-		IMPLEMENT_VK_command_buffer(CVulkanCommandBuffer::,device);
+		IMPLEMENT_VK_command_buffer(CVulkanCommandBuffer,device);
 	if (VK_NULL_HANDLE == CVulkanShader::vkCreateShaderModule)
-		IMPLEMENT_VK_pipeline(CVulkanShader::, device);
+		IMPLEMENT_VK_pipeline(CVulkanShader, device);
 	if (VK_NULL_HANDLE == CVulkanPipeline::vkCreateGraphicsPipelines)
-		IMPLEMENT_VK_pipeline(CVulkanPipeline::, device);
+		IMPLEMENT_VK_pipeline(CVulkanPipeline, device);
 	
 	vkQueueSubmit = (PFN_vkQueueSubmit)(vkGetDeviceProcAddr(device, "vkQueueSubmit"));
 	vkQueueWaitIdle = (PFN_vkQueueWaitIdle)(vkGetDeviceProcAddr(device, "vkQueueWaitIdle"));

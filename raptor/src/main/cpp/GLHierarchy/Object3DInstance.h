@@ -15,7 +15,7 @@
 
 RAPTOR_NAMESPACE_BEGIN
 
-class CRenderingProperties;
+class IRenderingProperties;
 class CShader;
 
 
@@ -70,21 +70,14 @@ public:
 	virtual bool RAPTOR_FASTCALL fullClip(const CGenericMatrix<float> &transform);
 
     //! This methods renders the BBox of the object.
-	virtual void glRenderBBox(bool filled = false);
+	virtual void glRenderBBox(RENDER_BOX_MODEL filled = WIREFRAME);
 
     //! This method renders the object clipped to viewport.
     //! @see CObject3D.
 	virtual void glClipRender();
 
     //! Override Display rendering properties tu use local object specific shading.
-    void overrideShading(const CRenderingProperties& override);
-
-    //! Returns the internal shader. A new shader is allocated if necessary.
-    virtual CShader	* const getShader(void);
-
-     //! Assigns a shader to the instance ( and not to the holded object). The previous one is released.
-    virtual void setShader(CShader *shader);
-
+	void overrideShading(const IRenderingProperties& override);
 
 	//!	I/O object serialization is implemented
     //! @see CPersistence.
@@ -109,15 +102,14 @@ protected:
 	//!	The differences between an object and it's instance
 	//!	N.B.: to avoid matrix transposition before it is loaded by OpenGL
 	//!	operations should produce the transpose of transform
-	GL_MATRIX		m_transform;
+	GL_MATRIX				m_transform;
 	
     //! The real object instanciated
-	CObject3D		            *m_pReference;
+	CObject3D				*m_pReference;
 
 
 private:
-    CShader			              *m_pShader;
-    CRenderingProperties  *m_pOverride;
+	IRenderingProperties	*m_pOverride;
     CContainerNotifier<CObject3D*> *m_pObserver;
 };
 

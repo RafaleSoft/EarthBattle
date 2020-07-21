@@ -4,7 +4,7 @@
 #include "Subsys/CodeGeneration.h"
 
 #if !defined(AFX_PERSISTENCE_H__5561BA28_831B_11D3_9142_EEB51CEBBDB0__INCLUDED_)
-	#include "Persistence.h"
+	#include "GLHierarchy/Persistence.h"
 #endif
 #if !defined(AFX_RAPTOR_H__C59035E1_1560_40EC_A0B1_4867C505D93A__INCLUDED_)
 	#include "System/Raptor.h"
@@ -15,6 +15,10 @@
 #if !defined(AFX_RAPTORERRORMANAGER_H__FA5A36CD_56BC_4AA1_A5F4_451734AD395E__INCLUDED_)
     #include "System/RaptorErrorManager.h"
 #endif
+#if !defined(AFX_RAPTORINSTANCE_H__90219068_202B_46C2_BFF0_73C24D048903__INCLUDED_)
+	#include "Subsys/RaptorInstance.h"
+#endif
+
 
 #include <stdio.h>	//	sprintf
 #include <stdlib.h>	//	atoi
@@ -24,14 +28,11 @@ RAPTOR_NAMESPACE_BEGIN
 //////////////////////////////////////////////////////////////////////
 // Objects Roots
 //////////////////////////////////////////////////////////////////////
-#pragma warning (disable : 4711)	// automatic inline expansion warning
-
 static bool lockRegistration = false;
-static MapStringToPtr	objects;
 static MapStringToPtr::iterator last_itr;
 static CRaptorMutex     persistenceMutex;
 static CPersistence::CPersistenceClassID persistenceID;
-static unsigned int uniqueID = 0;
+static uint32_t uniqueID = 0;
 
 CPersistence::CPersistenceClassID::CPersistenceClassID()
 {
@@ -42,8 +43,6 @@ const CPersistence::CPersistenceClassID& CPersistence::CPersistenceClassID::GetC
 {
 	return persistenceID;
 }
-
-#pragma warning (default : 4711)	// automatic inline expansion warning
 
 RAPTOR_NAMESPACE_END
 
@@ -69,10 +68,11 @@ CPersistence::CPersistence(const CPersistence::CPersistenceClassID &classID,
     //! After this point, we are in critical section
     CRaptorLock lock(persistenceMutex);
 
-	MapStringToPtr::iterator itr = objects.find(m_name);
+	CRaptorInstance &instance = CRaptorInstance::GetInstance();
+	MapStringToPtr::iterator itr = instance.objects.find(m_name);
 	
     bool firstfind = true;
-	while (itr != objects.end())
+	while (itr != instance.objects.end())
 	{
 #ifdef RAPTOR_DEBUG_MODE_GENERATION
         if (firstfind)
@@ -82,9 +82,14 @@ CPersistence::CPersistence(const CPersistence::CPersistenceClassID &classID,
             msgArg.arg_sz = name.data();
             args.push_back(msgArg);
 
-			Raptor::GetErrorManager()->generateRaptorError(	CPersistence::CPersistenceClassID::GetClassId(),
-														 	CRaptorErrorManager::RAPTOR_WARNING,
-															CRaptorMessages::ID_OBJECT_DUPLICATE,args);
+			CRaptorErrorManager* mgr = Raptor::GetErrorManager();
+			if (NULL != mgr)
+			{
+				mgr->generateRaptorError(CPersistence::CPersistenceClassID::GetClassId(),
+										 CRaptorErrorManager::RAPTOR_WARNING,
+										 CRaptorMessages::ID_OBJECT_DUPLICATE,
+										 __FILE__, __LINE__, args);
+			}
             firstfind = false;
         }
 #endif
@@ -95,28 +100,26 @@ CPersistence::CPersistence(const CPersistence::CPersistenceClassID &classID,
 			m_name += "#2";
 		else
 		{
-            char nb[32];
-			sprintf(nb,"%d",atoi(m_name.data() + pos+1)+1);
-			m_name = m_name.substr(0,pos) + "#" + nb;
+			stringstream nb;
+			nb << m_name.substr(0, pos);
+			nb << "#";
+			nb << atoi(m_name.data() + pos + 1) + 1;
+			nb << std::ends;
+			m_name = nb.str();
 		}
-		itr = objects.find(m_name);
+		itr = instance.objects.find(m_name);
 	}
 
 	MapStringToPtr::value_type val(m_name,this);
-	objects.insert(val);
+	instance.objects.insert(val);
 }
 
 CPersistence::~CPersistence()
 {
 #ifdef RAPTOR_DEBUG_MODE_GENERATION
 	stringstream msg;
-	msg << " deleting " << this << " - " << this->m_name;
-	Raptor::GetErrorManager()->generateRaptorError(	CPersistence::CPersistenceClassID::GetClassId(),
-													CRaptorErrorManager::RAPTOR_NO_ERROR,
-													msg.str());
-	Raptor::GetErrorManager()->generateRaptorError(	CPersistence::CPersistenceClassID::GetClassId(),
-													CRaptorErrorManager::RAPTOR_NO_ERROR,
-													"proceed...");
+	msg << " deleting " << this << " - " << this->m_name << " - " << this->getId().ClassName();
+	RAPTOR_NO_ERROR(CPersistence::CPersistenceClassID::GetClassId(), msg.str());
 #endif
 
     CRaptorLock lock(persistenceMutex);
@@ -131,16 +134,19 @@ CPersistence::~CPersistence()
     lockRegistration = false;
     lock.acquire();
 
-	MapStringToPtr::iterator itr = objects.find(m_name);
+	CRaptorInstance &instance = CRaptorInstance::GetInstance();
+	MapStringToPtr::iterator itr = instance.objects.find(m_name);
 	
-	if (itr != objects.end())
-		objects.erase(itr);
+	if (itr != instance.objects.end())
+		instance.objects.erase(itr);
 
 #ifdef RAPTOR_DEBUG_MODE_GENERATION
-    else
-		Raptor::GetErrorManager()->generateRaptorError(	CPersistence::CPersistenceClassID::GetClassId(),
-														CRaptorErrorManager::RAPTOR_ERROR,
-														CRaptorMessages::ID_DESTROY_FAILED);
+	else
+	{
+		RAPTOR_ERROR(CPersistence::CPersistenceClassID::GetClassId(), CRaptorMessages::ID_DESTROY_FAILED);
+	}
+
+	RAPTOR_NO_ERROR(CPersistence::CPersistenceClassID::GetClassId(), " done !");
 #endif
 }
 
@@ -193,14 +199,14 @@ void CPersistence::setName(const std::string &name)
     //! After this point, we are in critical section
     CRaptorLock lock(persistenceMutex);
 
-	MapStringToPtr::iterator itr = objects.find(m_name);
+	CRaptorInstance &instance = CRaptorInstance::GetInstance();
+	MapStringToPtr::iterator itr = instance.objects.find(m_name);
 	
-	if (itr == objects.end())
+	if (itr == instance.objects.end())
     {
 #ifdef RAPTOR_DEBUG_MODE_GENERATION
-		Raptor::GetErrorManager()->generateRaptorError(	CPersistence::CPersistenceClassID::GetClassId(),
-														CRaptorErrorManager::RAPTOR_ERROR,
-														CRaptorMessages::ID_UPDATE_FAILED);
+		RAPTOR_ERROR(	CPersistence::CPersistenceClassID::GetClassId(),
+						CRaptorMessages::ID_UPDATE_FAILED);
 
 #endif
     }
@@ -210,12 +216,12 @@ void CPersistence::setName(const std::string &name)
 
         // object is erased before reinserted.
         // clever algorithm would avoid rebalancing the map...
-		objects.erase(itr);
+		instance.objects.erase(itr);
 
 		p->m_name = name;
-		itr = objects.find(p->m_name);
+		itr = instance.objects.find(p->m_name);
 
-		while (itr != objects.end())
+		while (itr != instance.objects.end())
 		{
             string::size_type pos = p->m_name.find('#');
 
@@ -223,21 +229,25 @@ void CPersistence::setName(const std::string &name)
 				p->m_name += "#2";
 			else
 			{
-                char nb[32];
-			    sprintf(nb,"%d",atoi(p->m_name.data()+pos+1)+1);
-				p->m_name = p->m_name.substr(0,pos) + "#" + nb;
+				stringstream nb;
+				nb << m_name.substr(0, pos);
+				nb << "#";
+				nb << atoi(m_name.data() + pos + 1) + 1;
+				nb << std::ends;
+				p->m_name = nb.str();
 			}
-			itr = objects.find(p->m_name);
+			itr = instance.objects.find(p->m_name);
 		}
 
 		MapStringToPtr::value_type val(m_name,this);
-		objects.insert(val);
+		instance.objects.insert(val);
 	}
 }
 
-int CPersistence::NbInstance()
-{ 
-	return objects.size(); 
+size_t CPersistence::NbInstance()
+{
+	CRaptorInstance &instance = CRaptorInstance::GetInstance();
+	return instance.objects.size(); 
 }
 
 
@@ -251,14 +261,15 @@ CPersistence *CPersistence::Object(void*& it)
 
 	MapStringToPtr::iterator *itr = (MapStringToPtr::iterator *)it;
 	
+	CRaptorInstance &instance = CRaptorInstance::GetInstance();
 	if (itr == NULL)
 	{
-		last_itr = objects.begin();
+		last_itr = instance.objects.begin();
 		itr = &last_itr;
 		it = itr;
 	}
 
-	if ((*itr) != objects.end())
+	if ((*itr) != instance.objects.end())
 	{
 		res = (CPersistence*)((*(*itr)).second);
 		(*itr)++;
@@ -285,9 +296,10 @@ CPersistence *CPersistence::FindObject(const std::string &name)
 
 	CPersistence *res = NULL;
 
-	MapStringToPtr::iterator itr = objects.find(name);
+	CRaptorInstance &instance = CRaptorInstance::GetInstance();
+	MapStringToPtr::iterator itr = instance.objects.find(name);
 
-	if (itr != objects.end())
+	if (itr != instance.objects.end())
 		res = (CPersistence*)((*itr).second);
 
 	return res;
@@ -297,7 +309,7 @@ CPersistence *CPersistence::FindObject(const std::string &name)
 bool CPersistence::exportObject(CRaptorIO& o)
 {
 	o << m_ID.ID();
-	o << m_name.size();
+	o << (uint32_t)(m_name.size());
 	o << m_name.data();
 
 	return true;
@@ -305,6 +317,12 @@ bool CPersistence::exportObject(CRaptorIO& o)
 
 bool CPersistence::importObject(CRaptorIO& io)
 {
+	//uint32_t id = 0;
+	//io >> id;
+
+	//uint32_t sz = 0;
+	//io >> sz;
+
     string name;
 	io >> name;
 	

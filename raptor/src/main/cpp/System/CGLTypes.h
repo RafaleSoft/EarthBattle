@@ -1,3 +1,21 @@
+/***************************************************************************/
+/*                                                                         */
+/*  GLTypes.h                                                              */
+/*                                                                         */
+/*    Raptor OpenGL & Vulkan realtime 3D Engine SDK.                       */
+/*                                                                         */
+/*  Copyright 1998-2019 by                                                 */
+/*  Fabrice FERRAND.                                                       */
+/*                                                                         */
+/*  This file is part of the Raptor project, and may only be used,         */
+/*  modified, and distributed under the terms of the Raptor project        */
+/*  license, LICENSE.  By continuing to use, modify, or distribute         */
+/*  this file you indicate that you have read the license and              */
+/*  understand and accept it fully.                                        */
+/*                                                                         */
+/***************************************************************************/
+
+
 #ifndef __CGLTYPES_HPP__
 #define __CGLTYPES_HPP__
 
@@ -16,12 +34,12 @@
 	#include "System/Color.h"
 #endif
 
+#ifndef __RAPTOR_VERSION_H__
+	#include "Version.h"
+#endif
 
 RAPTOR_NAMESPACE_BEGIN
 
-#ifndef __RAPTOR_VERSION_H__
-	#include "System/Version.h"
-#endif
 
 //!
 //!	Generic opaque pointers.
@@ -32,16 +50,54 @@ RAPTOR_NAMESPACE_BEGIN
 //! divided in two parts:
 //! - Raptor private handles, created and managed by Raptor
 //!	- User handles, that Raptor can use but that identify client classes.
-typedef struct RAPTOR_HANDLE
+class RAPTOR_API RAPTOR_HANDLE
 {
-	uint32_t hClass;
-	uint32_t handle;
+public:
+	RAPTOR_HANDLE(void) :c(0), h({ uint64_t(0) }) { }
+	RAPTOR_HANDLE(uint32_t c, void* p) :c(c), h({ uint64_t(0) }) { h.handle = p; }
+	RAPTOR_HANDLE(uint32_t c, GLuint p) :c(c), h({ uint64_t(0) }) { h.glname = p; }
+	RAPTOR_HANDLE(uint32_t c, GLhandleARB p) :c(c), h({ uint64_t(0) }) { h.glhandle = p; }
+	RAPTOR_HANDLE(uint32_t c, uint64_t p) :c(c), h({ uint64_t(0) }) { h.longhandle = p; }
+	~RAPTOR_HANDLE(void) {};
+	
+	//!	Getters.
+	uint32_t hClass(void) const { return c; };
+	template<class T>
+	T *ptr(void) const { return static_cast<T*>(h.handle); };
+	uint64_t handle(void) const { return h.longhandle; };
+	GLhandleARB glhandle(void) const { return h.glhandle; };
+	GLuint glname(void) const { return h.glname; };
 
-	RAPTOR_HANDLE():hClass(0),handle(0) {}
-	RAPTOR_HANDLE(uint32_t c, void* p) :hClass(c), handle((uint32_t)p) {}
-	bool operator==(const RAPTOR_HANDLE &h) const { return (h.hClass==hClass)&&(h.handle==handle); }
-} RAPTOR_HANDLE;
+	//!	Setters.
+	void hClass(uint32_t hc) { c = hc; };
+	void ptr(void* p) { h.handle = p; };
+	void glname(GLuint g) { h.glname = g; };
+	void glhandle(GLhandleARB g) { h.glhandle = g; };
+	void handle(uint64_t g) { h.longhandle = g; };
+
+	//!	Operators.
+	bool operator==(const RAPTOR_HANDLE &rh) const
+	{
+		return (c == rh.c) && (h.longhandle == rh.h.longhandle);
+	}
+
+
+private:
+	//! avoid 32/64 mixing
+	operator uint64_t() const;
+
+	uint32_t c;
+	union hd
+	{
+		void*		handle;
+		uint64_t	longhandle;
+		GLhandleARB	glhandle;
+		GLuint		glname;
+	} h;
+};
+
 typedef RAPTOR_HANDLE*	LP_RAPTOR_HANDLE;
+
 
 //! Classes of handles are in 2 categories : Raptor handles and client handles.
 #define	RAPTOR_HANDLE_CLASS		0x00000000
@@ -163,6 +219,8 @@ typedef struct GL_COORD_VERTEX_TAG
 } GL_COORD_VERTEX;
 typedef GL_COORD_VERTEX *LP_GL_COORD_VERTEX;
 
+#define GL_COORD_VERTEX_STRIDE sizeof(GL_COORD_VERTEX)/sizeof(float)
+
 typedef struct GL_HIRES_COORD_VERTEX_TAG
 {
 	double x;	//	3D coordinates
@@ -214,6 +272,8 @@ typedef struct GL_TEX_VERTEX_TAG
 	}
 } GL_TEX_VERTEX;
 typedef GL_TEX_VERTEX *LP_GL_TEX_VERTEX;
+
+#define GL_TEX_VERTEX_STRIDE sizeof(GL_TEX_VERTEX)/sizeof(float)
 
 //	t => translation vector
 //	R => orientation matrix
@@ -321,8 +381,8 @@ public:
     void	unlock () const;
 
 private:
-	CRaptorMutex (const CRaptorMutex& M);
-	void operator = (const CRaptorMutex& M);
+	CRaptorMutex(const CRaptorMutex& M);
+	CRaptorMutex& operator=(const CRaptorMutex&) { return *this;  };
 
 #if defined(_WIN32) || defined(_WIN64)
 	mutable CRITICAL_SECTION _mutex;
@@ -354,7 +414,7 @@ private:
     bool		_locked;
 };
 
-#if defined(_ANDROID)
+#if defined(LINUX) || defined(_ANDROID)
 	#include <semaphore.h>
 #endif
 
@@ -369,7 +429,7 @@ public:
 
 private:
 	CRaptorSemaphore (const CRaptorSemaphore& M);
-	void operator = (const CRaptorSemaphore& M);
+	CRaptorSemaphore& operator=(const CRaptorSemaphore&) { return *this; };
 
 #if defined(_WIN32) || defined(_WIN64)
 	mutable HANDLE _sem;
@@ -423,7 +483,7 @@ public:
 	//!	Explicit
 	size_t size() const { return vaArray.size(); };
 
-	T operator[](unsigned int pos) const
+	T operator[](size_t pos) const
 	{ return vaArray[pos]; }
 
 private:

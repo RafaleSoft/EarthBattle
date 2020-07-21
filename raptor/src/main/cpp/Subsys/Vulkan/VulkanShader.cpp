@@ -1,8 +1,27 @@
-// VulkanDevice.cpp: implementation of the CVulkanPipeline class.
-//
-//////////////////////////////////////////////////////////////////////
+/***************************************************************************/
+/*                                                                         */
+/*  VulkanShader.cpp                                                       */
+/*                                                                         */
+/*    Raptor OpenGL & Vulkan realtime 3D Engine SDK.                       */
+/*                                                                         */
+/*  Copyright 1998-2019 by                                                 */
+/*  Fabrice FERRAND.                                                       */
+/*                                                                         */
+/*  This file is part of the Raptor project, and may only be used,         */
+/*  modified, and distributed under the terms of the Raptor project        */
+/*  license, LICENSE.  By continuing to use, modify, or distribute         */
+/*  this file you indicate that you have read the license and              */
+/*  understand and accept it fully.                                        */
+/*                                                                         */
+/***************************************************************************/
+
+
+
 #include "Subsys\CodeGeneration.h"
 
+#if !defined(AFX_VULKAN_H__625F6BC5_F386_44C2_85C1_EDBA23B16921__INCLUDED_)
+	#include "Subsys/Vulkan/RaptorVulkan.h"
+#endif
 #if !defined(AFX_RAPTORVULKANSHADER_H__C188550F_1D1C_4531_B0A0_727CE9FF9450__INCLUDED_)
 	#include "Subsys/Vulkan/VulkanShader.h"
 #endif
@@ -15,14 +34,14 @@
 #ifndef __vkext_macros_h_
 	#include "System/VKEXTMacros.h"
 #endif
+#if !defined(AFX_RAPTORIO_H__87D52C27_9117_4675_95DC_6AD2CCD2E78D__INCLUDED_)
+	#include "System/RaptorIO.h"
+#endif
 #if !defined(AFX_RAPTOR_H__C59035E1_1560_40EC_A0B1_4867C505D93A__INCLUDED_)
 	#include "System/Raptor.h"
 #endif
 #if !defined(AFX_RAPTORERRORMANAGER_H__FA5A36CD_56BC_4AA1_A5F4_451734AD395E__INCLUDED_)
-    #include "System/RaptorErrorManager.h"
-#endif
-#if !defined(AFX_RAPTORIO_H__87D52C27_9117_4675_95DC_6AD2CCD2E78D__INCLUDED_)
-	#include "System/RaptorIO.h"
+	#include "System/RaptorErrorManager.h"
 #endif
 
 
@@ -321,7 +340,7 @@ bool CVulkanShader::loadShader(const std::string &filename)
 															  }; 
 
 		res = vkCreateShaderModule( device, &shader_module_create_info, NULL, &module.shader_module );
-		CATCH_VK_ERROR(err)
+		CATCH_VK_ERROR(res)
 
 		delete [] code;
 		if (VK_SUCCESS == res)
@@ -330,7 +349,20 @@ bool CVulkanShader::loadShader(const std::string &filename)
 		return (VK_SUCCESS == res);
 	}
 	else
+	{
+		vector<CRaptorMessages::MessageArgument> args;
+		CRaptorMessages::MessageArgument arg;
+		arg.arg_sz = filename.c_str();
+		args.push_back(arg);
+
+		//!	Shader file could not be opened.
+		Raptor::GetErrorManager()->generateRaptorError(	CVulkan::CVulkanClassID::GetClassId(),
+														CRaptorErrorManager::RAPTOR_ERROR,
+														CRaptorMessages::ID_NO_RESOURCE,
+														__FILE__, __LINE__, args);
+
 		return false;
+	}
 #else
 	return false;
 #endif

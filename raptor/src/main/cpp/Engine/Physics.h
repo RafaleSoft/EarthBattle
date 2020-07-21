@@ -1,6 +1,21 @@
-// Physics.h: interface for the CPhysics class.
-//
-//////////////////////////////////////////////////////////////////////
+/***************************************************************************/
+/*                                                                         */
+/*  Physics.h                                                              */
+/*                                                                         */
+/*    Raptor OpenGL & Vulkan realtime 3D Engine SDK.                       */
+/*                                                                         */
+/*  Copyright 1998-2019 by                                                 */
+/*  Fabrice FERRAND.                                                       */
+/*                                                                         */
+/*  This file is part of the Raptor project, and may only be used,         */
+/*  modified, and distributed under the terms of the Raptor project        */
+/*  license, LICENSE.  By continuing to use, modify, or distribute         */
+/*  this file you indicate that you have read the license and              */
+/*  understand and accept it fully.                                        */
+/*                                                                         */
+/***************************************************************************/
+
+
 #if !defined(AFX_PHYSICS_H__B42ABB89_80E8_11D3_97C2_DE5C28000000__INCLUDED_)
 #define AFX_PHYSICS_H__B42ABB89_80E8_11D3_97C2_DE5C28000000__INCLUDED_
 
@@ -118,7 +133,7 @@ public:
 	//	Force management
 	void SetPfd(FORCES_PROC newpfd)	{ pfd = newpfd; };
 
-	unsigned int getNbForces(void) const { return forces.size(); };
+	size_t getNbForces(void) const { return forces.size(); };
 
 	CForce* RAPTOR_FASTCALL getForce(unsigned int index) const;
 	//	Adds the gravity force to the object.
